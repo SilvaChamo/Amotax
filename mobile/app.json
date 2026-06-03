@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "AMOTAX",
+    "slug": "amotax",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0B2E4A"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "org.amotax.app"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0B2E4A",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "package": "org.amotax.app",
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": ["expo-font", "expo-splash-screen", "expo-image-picker"]
+  }
+}

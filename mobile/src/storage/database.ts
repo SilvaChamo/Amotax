@@ -1,0 +1,241 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  ADMIN_PHONES,
+  DEFAULT_DUE_AMOUNT,
+  STORAGE_KEY,
+  ZONES_SEED,
+} from "../config/constants";
+import type {
+  Announcement,
+  AppData,
+  Due,
+  Meeting,
+  Member,
+  MeetingRsvp,
+} from "../types";
+import { createId } from "../utils/id";
+import { normalizePhone } from "../utils/phone";
+import { currentYearMonth } from "../utils/date";
+
+function seedData(): AppData {
+  return {
+    config: {
+      dueAmountMzn: DEFAULT_DUE_AMOUNT,
+      associationName: "AMOTAX — Associação Moçambicana de Moto Tax",
+    },
+    zones: ZONES_SEED,
+    members: [],
+    dues: [],
+    announcements: [
+      {
+        id: "ann_welcome",
+        title: "Bem-vindo ao aplicativo AMOTAX",
+        body:
+          "Esta é a fase piloto. Inscreva-se, pague a cota simbólica e fique atento aos convites de reunião da associação.",
+        publishedAt: new Date().toISOString(),
+        sendSms: false,
+      },
+    ],
+    meetings: [],
+    rsvps: [],
+  };
+}
+
+export async function loadAppData(): Promise<AppData> {
+  const raw = await AsyncStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    const initial = seedData();
+    await saveAppData(initial);
+    return initial;
+  }
+  return JSON.parse(raw) as AppData;
+}
+
+export async function saveAppData(data: AppData): Promise<void> {
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+export function nextMemberNumber(members: Member[]): string {
+  const n = members.filter((m) => m.status === "active").length + 1;
+  return `AMX-${String(n).padStart(5, "0")}`;
+}
+
+export function findMemberByPhone(data: AppData, phone: string): Member | undefined {
+  const p = normalizePhone(phone);
+  return data.members.find((m) => normalizePhone(m.phone) === p);
+}
+
+export function isAdminPhone(phone: string): boolean {
+  const p = normalizePhone(phone);
+  return ADMIN_PHONES.some((a) => normalizePhone(a) === p);
+}
+
+export async function ensureCurrentDue(data: AppData, memberId: string): Promise<AppData> {
+  const { year, month } = currentYearMonth();
+  const exists = data.dues.some(
+    (d) => d.memberId === memberId && d.year === year && d.month === month,
+  );
+  if (exists) return data;
+  const due: Due = {
+    id: createId("due"),
+    memberId,
+    year,
+    month,
+    amountMzn: data.config.dueAmountMzn,
+    status: "pending",
+  };
+  return { ...data, dues: [...data.dues, due] };
+}
+
+export async function registerMember(
+  data: AppData,
+  input: {
+    phone: string;
+    name: string;
+    zoneId: string;
+    smsOptIn: boolean;
+    licensePlate?: string;
+  },
+): Promise<{ data: AppData; member: Member }> {
+  const phone = normalizePhone(input.phone);
+  const existing = findMemberByPhone(data, phone);
+  if (existing) {
+    return { data, member: existing };
+  }
+  const member: Member = {
+    id: createId("mem"),
+    phone,
+    name: input.name.trim(),
+    zoneId: input.zoneId,
+    status: "pending",
+    smsOptIn: input.smsOptIn,
+    licensePlate: input.licensePlate?.trim(),
+    createdAt: new Date().toISOString(),
+    isAdmin: isAdminPhone(phone),
+  };
+  let next: AppData = { ...data, members: [...data.members, member] };
+  next = await ensureCurrentDue(next, member.id);
+  await saveAppData(next);
+  return { data: next, member };
+}
+
+export async function activateMember(data: AppData, memberId: string): Promise<AppData> {
+  const activeCount = data.members.filter((m) => m.status === "active").length;
+  const number = `AMX-${String(activeCount + 1).padStart(5, "0")}`;
+  let next: AppData = {
+    ...data,
+    members: data.members.map((m) =>
+      m.id === memberId
+        ? {
+            ...m,
+            status: "active" as const,
+            memberNumber: m.memberNumber ?? number,
+          }
+        : m,
+    ),
+  };
+  next = await ensureCurrentDue(next, memberId);
+  await saveAppData(next);
+  return next;
+}
+
+export async function rejectMember(data: AppData, memberId: string): Promise<AppData> {
+  const next: AppData = {
+    ...data,
+    members: data.members.map((m) =>
+      m.id === memberId ? { ...m, status: "rejected" as const } : m,
+    ),
+  };
+  await saveAppData(next);
+  return next;
+}
+
+export async function submitDueReceipt(
+  data: AppData,
+  dueId: string,
+  receiptUri: string,
+): Promise<AppData> {
+  const next: AppData = {
+    ...data,
+    dues: data.dues.map((d) =>
+      d.id === dueId ? { ...d, status: "review" as const, receiptUri } : d,
+    ),
+  };
+  await saveAppData(next);
+  return next;
+}
+
+export async function approveDue(data: AppData, dueId: string): Promise<AppData> {
+  const next: AppData = {
+    ...data,
+    dues: data.dues.map((d) =>
+      d.id === dueId
+        ? { ...d, status: "paid" as const, paidAt: new Date().toISOString() }
+        : d,
+    ),
+  };
+  await saveAppData(next);
+  return next;
+}
+
+export async function markDuePaid(data: AppData, dueId: string): Promise<AppData> {
+  return approveDue(data, dueId);
+}
+
+export async function addAnnouncement(
+  data: AppData,
+  input: { title: string; body: string; sendSms: boolean },
+): Promise<AppData> {
+  const ann: Announcement = {
+    id: createId("ann"),
+    title: input.title.trim(),
+    body: input.body.trim(),
+    publishedAt: new Date().toISOString(),
+    sendSms: input.sendSms,
+  };
+  const next = { ...data, announcements: [ann, ...data.announcements] };
+  await saveAppData(next);
+  return next;
+}
+
+export async function addMeeting(
+  data: AppData,
+  input: { title: string; startsAt: string; locationText: string; body: string },
+): Promise<AppData> {
+  const meeting: Meeting = {
+    id: createId("mtg"),
+    title: input.title.trim(),
+    startsAt: input.startsAt,
+    locationText: input.locationText.trim(),
+    body: input.body.trim(),
+  };
+  const next = { ...data, meetings: [meeting, ...data.meetings] };
+  await saveAppData(next);
+  return next;
+}
+
+export async function setRsvp(
+  data: AppData,
+  meetingId: string,
+  memberId: string,
+  response: MeetingRsvp["response"],
+): Promise<AppData> {
+  const others = data.rsvps.filter(
+    (r) => !(r.meetingId === meetingId && r.memberId === memberId),
+  );
+  const rsvp: MeetingRsvp = {
+    meetingId,
+    memberId,
+    response,
+    updatedAt: new Date().toISOString(),
+  };
+  const next = { ...data, rsvps: [...others, rsvp] };
+  await saveAppData(next);
+  return next;
+}
+
+export async function setSession(data: AppData, phone: string | undefined): Promise<AppData> {
+  const next = { ...data, sessionPhone: phone ? normalizePhone(phone) : undefined };
+  await saveAppData(next);
+  return next;
+}

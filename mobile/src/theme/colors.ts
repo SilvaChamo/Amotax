@@ -1,0 +1,22 @@
+export const colors = {
+  yellow: "#FFCC00",
+  yellowLight: "#FFE566",
+  yellowPale: "#FFF9DB",
+  yellowDark: "#C9A000",
+  navy: "#0B2E4A",
+  navyMid: "#1B4D73",
+  navyLight: "#2A6A9B",
+  sky: "#E8F0F8",
+  white: "#FFFFFF",
+  gray100: "#F5F7FA",
+  gray200: "#E2E8F0",
+  gray500: "#64748B",
+  gray700: "#334155",
+  success: "#16A34A",
+  warning: "#CA8A04",
+  danger: "#DC2626",
+  black: "#0F172A",
+  /** Sobreposição sobre a imagem de fundo */
+  overlay: "rgba(11, 46, 74, 0.78)",
+  cardBg: "rgba(255, 255, 255, 0.96)",
+} as const;
