@@ -103,7 +103,8 @@ export function HomeScreen() {
 
       <Button
         title="Cartão de membro"
-        variant="outline"
+        variant="secondary"
+        hoverYellow
         onPress={() => navigation.navigate("MemberCard")}
       />
 

@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
+import { Platform, StyleSheet, Text, TextInput, TextInputProps, View } from "react-native";
 import { colors } from "../../theme/colors";
 import { RADIUS } from "../../theme/radius";
 import { fontFamily, text } from "../../theme/typography";
@@ -46,6 +46,9 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
     width: "100%",
     textAlign: "center",
+    ...(Platform.OS === "web"
+      ? ({ outlineStyle: "none", boxSizing: "border-box" } as object)
+      : {}),
   },
   inputLeft: { textAlign: "left" },
   inputError: { borderColor: colors.danger },

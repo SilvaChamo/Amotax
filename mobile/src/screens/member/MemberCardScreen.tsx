@@ -107,5 +107,10 @@ const styles = StyleSheet.create({
     marginTop: 4,
     textAlign: "center",
   },
-  qrWrap: { marginTop: 20, padding: 12, backgroundColor: colors.gray100, borderRadius: RADIUS },
+  qrWrap: {
+    marginTop: 20,
+    padding: 12,
+    backgroundColor: colors.gray100,
+    borderRadius: RADIUS,
+  },
 });

@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { contentBlock } from "../../theme/layout";
+import { contentBlock, SIDE_PADDING } from "../../theme/layout";
 import { colors } from "../../theme/colors";
 import { text } from "../../theme/typography";
 
@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   bodyWrap: { flex: 1 },
   scrollFlex: { flex: 1 },
   header: {
-    paddingHorizontal: 20,
+    paddingHorizontal: SIDE_PADDING,
     paddingTop: 8,
     paddingBottom: 8,
     alignItems: "center",
@@ -127,7 +127,7 @@ const styles = StyleSheet.create({
     borderTopColor: colors.gray200,
   },
   footer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: SIDE_PADDING,
     paddingTop: 12,
     paddingBottom: 16,
     alignItems: "center",

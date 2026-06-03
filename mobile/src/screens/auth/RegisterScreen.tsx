@@ -2,7 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
 import { LocationSelector } from "../../components/LocationSelector";
-import { LogoHeader } from "../../components/LogoHeader";
+import { MemberTopBar } from "../../components/MemberTopBar";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { Screen } from "../../components/ui/Screen";
@@ -116,11 +116,11 @@ export function RegisterScreen({ navigation }: Props) {
   };
 
   return (
-    <Screen footer={<Button title="Continuar" onPress={submit} loading={loading} />}>
-      <View style={styles.form}>
-        <LogoHeader size="compact" />
-
-        <Input
+    <View style={styles.page}>
+      <MemberTopBar showBack onBack={() => navigation.goBack()} showLogout={false} />
+      <Screen footer={<Button title="Continuar" onPress={submit} loading={loading} />} omitTopSafeArea>
+        <View style={styles.form}>
+          <Input
           label="Nome completo"
           value={name}
           onChangeText={setName}
@@ -180,12 +180,17 @@ export function RegisterScreen({ navigation }: Props) {
         </Pressable>
 
         {error ? <Text style={styles.err}>{error}</Text> : null}
-      </View>
-    </Screen>
+        </View>
+      </Screen>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor: colors.gray100,
+  },
   form: {
     width: "100%",
     maxWidth: 440,

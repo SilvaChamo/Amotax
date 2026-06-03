@@ -3,13 +3,15 @@ import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppBackground } from "../../components/AppBackground";
-import { LogoHeader } from "../../components/LogoHeader";
+import { PublicAppHeader } from "../../components/PublicAppHeader";
+import { TopBarButton } from "../../components/TopBarButton";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { DEMO_OTP } from "../../config/constants";
 import { useApp } from "../../context/AppContext";
 import { contentBlock } from "../../theme/layout";
 import { colors } from "../../theme/colors";
+import { fontFamily } from "../../theme/typography";
 import { isValidMozPhone, normalizePhone } from "../../utils/phone";
 import type { AuthStackParamList } from "../../navigation/types";
 
@@ -43,12 +45,17 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <AppBackground image={loginBg}>
-      <SafeAreaView style={styles.root} edges={["left", "right", "bottom"]}>
+      <SafeAreaView style={styles.root} edges={["left", "right"]}>
+        <PublicAppHeader
+          left={
+            <TopBarButton label="Voltar" onPress={() => navigation.navigate("Welcome")} />
+          }
+        />
+
         <View style={styles.center}>
           <View style={contentBlock}>
-            <LogoHeader size="login" onDark />
+            <Text style={styles.phonePrompt}>Digite seu numero de telefone</Text>
             <Input
-              label="Telemóvel"
               placeholder="84 123 4567"
               keyboardType="phone-pad"
               value={phone}
@@ -58,6 +65,7 @@ export function LoginScreen({ navigation }: Props) {
             <Text style={styles.hint}>Piloto: código SMS = {DEMO_OTP}</Text>
           </View>
         </View>
+
         <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
           <View style={[styles.footer, contentBlock]}>
             <Button title="Receber código" onPress={continueFlow} />
@@ -86,6 +94,17 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+  },
+  phonePrompt: {
+    fontFamily: fontFamily.medium,
+    fontSize: 16,
+    color: colors.white,
+    textAlign: "center",
+    width: "100%",
+    marginBottom: 10,
+    textShadowColor: "rgba(0,0,0,0.5)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 4,
   },
   hint: {
     fontSize: 13,

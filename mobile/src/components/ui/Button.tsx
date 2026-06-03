@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -18,6 +19,8 @@ type Props = {
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
+  /** Hover com fundo amarelo (ex.: botão Cartão de membro) */
+  hoverYellow?: boolean;
 };
 
 const variantBox: Record<Variant, ViewStyle> = {
@@ -45,23 +48,42 @@ export function Button({
   disabled,
   loading,
   style,
+  hoverYellow = false,
 }: Props) {
+  const [highlight, setHighlight] = useState(false);
+  const active = highlight && hoverYellow && !disabled && !loading;
+
   return (
     <Pressable
       onPress={onPress}
       disabled={disabled || loading}
-      style={({ pressed }) => [
+      onHoverIn={() => setHighlight(true)}
+      onHoverOut={() => setHighlight(false)}
+      onPressIn={() => setHighlight(true)}
+      onPressOut={() => setHighlight(false)}
+      style={[
         styles.base,
         variantBox[variant],
+        active && styles.hoverYellow,
         (disabled || loading) && styles.disabled,
-        pressed && styles.pressed,
+        !active && highlight && !hoverYellow && styles.pressed,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={variant === "outline" ? colors.yellow : colors.navy} />
+        <ActivityIndicator
+          color={active || variant === "primary" ? colors.navy : colors.yellow}
+        />
       ) : (
-        <Text style={[styles.label, variantLabel[variant]]}>{title}</Text>
+        <Text
+          style={[
+            styles.label,
+            { color: variantLabel[variant].color },
+            active && styles.labelHoverYellow,
+          ]}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -79,9 +101,16 @@ const styles = StyleSheet.create({
     maxWidth: 440,
     alignSelf: "center",
   },
+  hoverYellow: {
+    backgroundColor: colors.yellow,
+    borderWidth: 0,
+  },
   label: {
     fontFamily: fontFamily.bold,
     fontSize: 15,
+  },
+  labelHoverYellow: {
+    color: colors.navy,
   },
   pressed: { opacity: 0.88 },
   disabled: { opacity: 0.5 },

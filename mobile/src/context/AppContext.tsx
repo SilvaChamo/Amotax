@@ -14,6 +14,7 @@ import {
   findMemberByPhone,
   isAdminPhone,
   loadAppData,
+  markAnnouncementsReadByIds,
   registerMember,
   rejectMember,
   setRsvp,
@@ -21,6 +22,7 @@ import {
   submitDueReceipt,
 } from "../storage/database";
 import { DEMO_GUEST_PHONE } from "../config/constants";
+import { countUnreadAnnouncements } from "../lib/notifications";
 import type { AppData, Member, RsvpResponse } from "../types";
 import { normalizePhone } from "../utils/phone";
 
@@ -57,6 +59,8 @@ type AppContextValue = {
     body: string,
   ) => Promise<void>;
   respondMeeting: (meetingId: string, response: RsvpResponse) => Promise<void>;
+  unreadNotificationCount: number;
+  markAnnouncementRead: (id: string) => Promise<void>;
 };
 
 const AppContext = createContext<AppContextValue | null>(null);
@@ -84,6 +88,20 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     const m = findMemberByPhone(data, data.sessionPhone);
     return Boolean(m?.isAdmin || isAdminPhone(data.sessionPhone));
   }, [data]);
+
+  const unreadNotificationCount = useMemo(
+    () => (data ? countUnreadAnnouncements(data) : 0),
+    [data],
+  );
+
+  const markAnnouncementRead = useCallback(
+    async (id: string) => {
+      if (!data) return;
+      const next = await markAnnouncementsReadByIds(data, [id]);
+      setData(next);
+    },
+    [data],
+  );
 
   const login = useCallback(
     async (phone: string) => {
@@ -260,6 +278,8 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     createAnnouncement,
     createMeeting,
     respondMeeting,
+    unreadNotificationCount,
+    markAnnouncementRead,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

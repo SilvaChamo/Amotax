@@ -3,16 +3,17 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { AppBackground } from "../../components/AppBackground";
-import { LogoHeader } from "../../components/LogoHeader";
+import { NotificationBellButton } from "../../components/NotificationBellButton";
+import { PublicAppHeader } from "../../components/PublicAppHeader";
 import { Button } from "../../components/ui/Button";
 import { useApp } from "../../context/AppContext";
-import { contentBlock } from "../../theme/layout";
+import { CONTENT_MAX_WIDTH, contentBlock, SIDE_PADDING } from "../../theme/layout";
 import type { AuthStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 export function WelcomeScreen({ navigation }: Props) {
-  const { enterAsGuest } = useApp();
+  const { enterAsGuest, unreadNotificationCount } = useApp();
   const [loading, setLoading] = useState(false);
 
   const explore = async () => {
@@ -26,12 +27,19 @@ export function WelcomeScreen({ navigation }: Props) {
 
   return (
     <AppBackground>
-      <SafeAreaView style={styles.root} edges={["top", "left", "right"]}>
-        <View style={styles.hero}>
-          <View style={contentBlock}>
-            <LogoHeader onDark />
+      <SafeAreaView style={styles.root} edges={["left", "right"]}>
+        <PublicAppHeader />
+
+        <View style={styles.content}>
+          <View style={styles.contentInner}>
+            <NotificationBellButton
+              unreadCount={unreadNotificationCount}
+              onPress={() => navigation.navigate("Notifications")}
+            />
           </View>
+          <View style={styles.spacer} />
         </View>
+
         <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
           <View style={[styles.footer, contentBlock]}>
             <Button
@@ -57,12 +65,21 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
   },
-  hero: {
+  content: {
     flex: 1,
-    justifyContent: "center",
     width: "100%",
-    alignItems: "center",
-    paddingHorizontal: 24,
+  },
+  contentInner: {
+    width: "100%",
+    maxWidth: CONTENT_MAX_WIDTH,
+    alignSelf: "center",
+    paddingHorizontal: SIDE_PADDING,
+    paddingTop: 12,
+    flexDirection: "row",
+    justifyContent: "flex-end",
+  },
+  spacer: {
+    flex: 1,
   },
   footerSafe: {
     width: "100%",

@@ -76,4 +76,6 @@ export interface AppData {
   meetings: Meeting[];
   rsvps: MeetingRsvp[];
   sessionPhone?: string;
+  /** IDs de avisos já vistos (notificações lidas) */
+  readAnnouncementIds?: string[];
 }

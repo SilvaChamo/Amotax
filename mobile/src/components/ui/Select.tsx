@@ -75,12 +75,18 @@ const styles = StyleSheet.create({
     width: "100%",
     color: colors.navy,
     ...(Platform.OS === "web"
-      ? {
+      ? ({
           minHeight: 44,
           fontFamily: fontFamily.regular,
           fontSize: 15,
           paddingHorizontal: 10,
-        }
+          borderRadius: RADIUS,
+          borderWidth: 0,
+          borderStyle: "none",
+          outlineStyle: "none",
+          backgroundColor: "transparent",
+          boxSizing: "border-box",
+        } as object)
       : {}),
   },
 });

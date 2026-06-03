@@ -26,18 +26,51 @@ function seedData(): AppData {
     zones: ZONES_SEED,
     members: [],
     dues: [],
-    announcements: [
-      {
-        id: "ann_welcome",
-        title: "Bem-vindo ao aplicativo AMOTAX",
-        body:
-          "Esta é a fase piloto. Inscreva-se, pague a cota simbólica e fique atento aos convites de reunião da associação.",
-        publishedAt: new Date().toISOString(),
-        sendSms: false,
-      },
-    ],
+    announcements: defaultAnnouncements(),
     meetings: [],
     rsvps: [],
+    readAnnouncementIds: [],
+  };
+}
+
+function defaultAnnouncements(): Announcement[] {
+  const base = new Date();
+  return [
+    {
+      id: "ann_welcome",
+      title: "Bem-vindo ao aplicativo AMOTAX",
+      body:
+        "Esta é a fase piloto. Inscreva-se, pague a cota simbólica e fique atento aos convites de reunião da associação.",
+      publishedAt: new Date(base.getTime() - 86400000 * 2).toISOString(),
+      sendSms: false,
+    },
+    {
+      id: "ann_cota",
+      title: "Cota mensal disponível",
+      body: "A cota do mês já está activa. Envie o comprovativo na área Cotas assim que efectuar o pagamento.",
+      publishedAt: new Date(base.getTime() - 86400000).toISOString(),
+      sendSms: true,
+    },
+    {
+      id: "ann_reuniao",
+      title: "Convocatória de reunião",
+      body: "Fique atento à secção Reuniões para confirmar a sua presença nas assembleias da AMOTAX.",
+      publishedAt: base.toISOString(),
+      sendSms: false,
+    },
+  ];
+}
+
+function normalizeAppData(data: AppData): AppData {
+  const existingIds = new Set(data.announcements.map((a) => a.id));
+  const merged = [...data.announcements];
+  for (const ann of defaultAnnouncements()) {
+    if (!existingIds.has(ann.id)) merged.push(ann);
+  }
+  return {
+    ...data,
+    announcements: merged,
+    readAnnouncementIds: data.readAnnouncementIds ?? [],
   };
 }
 
@@ -48,7 +81,12 @@ export async function loadAppData(): Promise<AppData> {
     await saveAppData(initial);
     return initial;
   }
-  return JSON.parse(raw) as AppData;
+  const parsed = JSON.parse(raw) as AppData;
+  const normalized = normalizeAppData(parsed);
+  if (JSON.stringify(normalized) !== JSON.stringify(parsed)) {
+    await saveAppData(normalized);
+  }
+  return normalized;
 }
 
 export async function saveAppData(data: AppData): Promise<void> {
@@ -190,6 +228,23 @@ export async function approveDue(data: AppData, dueId: string): Promise<AppData>
 
 export async function markDuePaid(data: AppData, dueId: string): Promise<AppData> {
   return approveDue(data, dueId);
+}
+
+export async function markAnnouncementsReadByIds(
+  data: AppData,
+  ids: string[],
+): Promise<AppData> {
+  const merged = new Set([...(data.readAnnouncementIds ?? []), ...ids]);
+  const next = { ...data, readAnnouncementIds: [...merged] };
+  await saveAppData(next);
+  return next;
+}
+
+export async function markAllAnnouncementsRead(data: AppData): Promise<AppData> {
+  return markAnnouncementsReadByIds(
+    data,
+    data.announcements.map((a) => a.id),
+  );
 }
 
 export async function addAnnouncement(
