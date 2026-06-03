@@ -17,12 +17,21 @@ import { colors } from "../../theme/colors";
 import { RADIUS } from "../../theme/radius";
 import { fontFamily, text } from "../../theme/typography";
 import { isValidMozPhone, normalizePhone } from "../../utils/phone";
+import type { MemberRegistrationKind } from "../../types";
 import type { AuthStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Register">;
 
+const REGISTRATION_TABS: { id: MemberRegistrationKind; label: string; plateLabel: string }[] =
+  [
+    { id: "mototaxi", label: "Moto", plateLabel: "Matrícula da moto" },
+    { id: "tchopela", label: "Tchopela", plateLabel: "Matrícula da tchopela" },
+  ];
+
 export function RegisterScreen({ navigation }: Props) {
   const { register } = useApp();
+  const [registrationKind, setRegistrationKind] =
+    useState<MemberRegistrationKind>("mototaxi");
   const [phone, setPhone] = useState("");
   const [name, setName] = useState("");
   const [plate, setPlate] = useState("");
@@ -106,6 +115,7 @@ export function RegisterScreen({ navigation }: Props) {
         praca: praca.trim(),
         smsOptIn,
         licensePlate: plate,
+        registrationKind,
       });
       navigation.navigate("Otp", { phone: normalizePhone(phone), mode: "register" });
     } catch {
@@ -120,6 +130,28 @@ export function RegisterScreen({ navigation }: Props) {
       <MemberTopBar showBack onBack={() => navigation.goBack()} showLogout={false} />
       <Screen footer={<Button title="Continuar" onPress={submit} loading={loading} />} omitTopSafeArea>
         <View style={styles.form}>
+          <View style={styles.tabs}>
+            {REGISTRATION_TABS.map((tab) => {
+              const active = registrationKind === tab.id;
+              return (
+                <Pressable
+                  key={tab.id}
+                  style={[styles.tab, active && styles.tabActive]}
+                  onPress={() => setRegistrationKind(tab.id)}
+                >
+                  <Text style={[styles.tabText, active && styles.tabTextActive]}>
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+          <Text style={styles.tabHint}>
+            {registrationKind === "mototaxi"
+              ? "Registo como mototáxi (AMOTAX)"
+              : "Registo como tchopela (AMOTAX)"}
+          </Text>
+
           <Input
           label="Nome completo"
           value={name}
@@ -141,7 +173,10 @@ export function RegisterScreen({ navigation }: Props) {
           </View>
           <View style={styles.half}>
             <Input
-              label="Matrícula da moto"
+              label={
+                REGISTRATION_TABS.find((t) => t.id === registrationKind)?.plateLabel ??
+                "Matrícula"
+              }
               value={plate}
               onChangeText={setPlate}
               placeholder="ABC-1234"
@@ -195,6 +230,43 @@ const styles = StyleSheet.create({
     width: "100%",
     maxWidth: 440,
     alignSelf: "center",
+  },
+  tabs: {
+    flexDirection: "row",
+    width: "100%",
+    gap: 10,
+    marginBottom: 8,
+  },
+  tab: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 8,
+    borderRadius: RADIUS,
+    borderWidth: 2,
+    borderColor: colors.gray200,
+    backgroundColor: colors.white,
+    alignItems: "center",
+  },
+  tabActive: {
+    borderColor: colors.navy,
+    backgroundColor: colors.yellow,
+  },
+  tabText: {
+    fontFamily: fontFamily.medium,
+    fontSize: 15,
+    color: colors.navyMid,
+  },
+  tabTextActive: {
+    fontFamily: fontFamily.bold,
+    color: colors.navy,
+  },
+  tabHint: {
+    fontFamily: fontFamily.regular,
+    fontSize: 13,
+    color: colors.gray500,
+    textAlign: "left",
+    width: "100%",
+    marginBottom: 12,
   },
   row: {
     flexDirection: "row",

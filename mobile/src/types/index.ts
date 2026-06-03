@@ -1,5 +1,8 @@
 export type MemberStatus = "pending" | "active" | "rejected";
 
+/** Destino do registo: mototáxi (AMOTAX) ou tchopela */
+export type MemberRegistrationKind = "mototaxi" | "tchopela";
+
 export type DueStatus = "pending" | "paid" | "waived" | "review";
 
 export type RsvpResponse = "yes" | "no" | "maybe";
@@ -24,6 +27,7 @@ export interface Member {
   memberNumber?: string;
   smsOptIn: boolean;
   licensePlate?: string;
+  registrationKind: MemberRegistrationKind;
   createdAt: string;
   isAdmin?: boolean;
 }
@@ -76,6 +80,8 @@ export interface AppData {
   meetings: Meeting[];
   rsvps: MeetingRsvp[];
   sessionPhone?: string;
-  /** IDs de avisos já vistos (notificações lidas) */
+  /** @deprecated migrado para readAnnouncements */
   readAnnouncementIds?: string[];
+  /** id do aviso → data/hora em que foi lido (ISO) */
+  readAnnouncements?: Record<string, string>;
 }

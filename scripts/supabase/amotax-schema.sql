@@ -1,4 +1,4 @@
--- AMOTAX piloto — executar no SQL Editor do Supabase (projecto novo ou dedicado)
+-- AMOTAX — Supabase Hetzner (supabase.aamihe.com), tabelas amotax_*
 
 create table if not exists amotax_config (
   id text primary key default 'default',
@@ -21,6 +21,8 @@ create table if not exists amotax_members (
   member_number text,
   sms_opt_in boolean not null default false,
   license_plate text,
+  registration_kind text not null default 'mototaxi'
+    check (registration_kind in ('mototaxi', 'tchopela')),
   created_at timestamptz not null,
   is_admin boolean not null default false
 );
@@ -104,6 +106,13 @@ alter table amotax_dues enable row level security;
 alter table amotax_announcements enable row level security;
 alter table amotax_meetings enable row level security;
 alter table amotax_rsvps enable row level security;
+
+drop policy if exists "amotax_config_pilot" on amotax_config;
+drop policy if exists "amotax_members_pilot" on amotax_members;
+drop policy if exists "amotax_dues_pilot" on amotax_dues;
+drop policy if exists "amotax_announcements_pilot" on amotax_announcements;
+drop policy if exists "amotax_meetings_pilot" on amotax_meetings;
+drop policy if exists "amotax_rsvps_pilot" on amotax_rsvps;
 
 create policy "amotax_config_pilot" on amotax_config for all using (true) with check (true);
 create policy "amotax_members_pilot" on amotax_members for all using (true) with check (true);

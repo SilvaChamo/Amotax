@@ -10,17 +10,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { MemberTopBar } from "../../components/MemberTopBar";
-import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
 import { useApp } from "../../context/AppContext";
 import {
   countUnreadAnnouncements,
-  excerptNotificationBody,
+  deliveryLabel,
+  getAnnouncementReadAt,
   isAnnouncementUnread,
   sortAnnouncementsNewestFirst,
 } from "../../lib/notifications";
-import { CONTENT_MAX_WIDTH, SIDE_PADDING } from "../../theme/layout";
+import { SIDE_PADDING } from "../../theme/layout";
 import { colors } from "../../theme/colors";
 import { RADIUS } from "../../theme/radius";
 import { fontFamily, text } from "../../theme/typography";
@@ -61,37 +61,50 @@ export function NotificationsScreen({ navigation }: Props) {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inner}>
-            <Text style={text.h2}>Notificações</Text>
-            <Text style={styles.sub}>
-              {unreadCount > 0
-                ? `${unreadCount} não lida${unreadCount === 1 ? "" : "s"}`
-                : "Todas as notificações foram lidas"}
-            </Text>
+            <View style={styles.header}>
+              <Text style={text.h2}>Notificações</Text>
+              <Text style={styles.sub}>
+                {unreadCount > 0
+                  ? `${unreadCount} não lida${unreadCount === 1 ? "" : "s"}`
+                  : "Todas as notificações foram lidas"}
+              </Text>
+            </View>
 
             {list.length === 0 && (
-              <Card>
-                <Text style={text.body}>Ainda não há notificações.</Text>
-              </Card>
+              <View style={styles.cardPress}>
+                <Card centered={false} style={styles.rowCard}>
+                  <Text style={text.body}>Ainda não há notificações.</Text>
+                </Card>
+              </View>
             )}
 
             {list.map((a) => {
               const unread = data ? isAnnouncementUnread(data, a.id) : false;
+              const readAt = data ? getAnnouncementReadAt(data, a.id) : undefined;
+              const dateLabel = unread
+                ? formatDateTime(a.publishedAt)
+                : readAt
+                  ? formatDateTime(readAt)
+                  : formatDateTime(a.publishedAt);
               return (
-                <Pressable key={a.id} onPress={() => openDetail(a)}>
-                  <Card style={[styles.summaryCard, !unread && styles.summaryRead]}>
-                    <View style={styles.meta}>
-                      <Badge
-                        label={unread ? "Não lida" : "Recebida"}
-                        tone={unread ? "danger" : "navy"}
-                      />
-                      {a.sendSms ? <Badge label="SMS" tone="yellow" /> : null}
-                      <Text style={text.caption}>{formatDateTime(a.publishedAt)}</Text>
-                    </View>
-                    <Text style={text.h3}>{a.title}</Text>
-                    <Text style={styles.excerpt} numberOfLines={2}>
-                      {excerptNotificationBody(a.body)}
+                <Pressable
+                  key={a.id}
+                  style={styles.cardPress}
+                  onPress={() => openDetail(a)}
+                >
+                  <Card
+                    centered={false}
+                    style={[styles.rowCard, !unread && styles.rowCardRead]}
+                  >
+                    <Text style={styles.subject} numberOfLines={2}>
+                      {a.title}
                     </Text>
-                    <Text style={styles.tapHint}>Toque para ler</Text>
+                    <View style={styles.metaRow}>
+                      {unread ? <View style={styles.unreadDot} /> : null}
+                      <Text style={styles.metaText}>{dateLabel}</Text>
+                      <Text style={styles.metaSep}>·</Text>
+                      <Text style={styles.metaEnvio}>{deliveryLabel(a.sendSms)}</Text>
+                    </View>
                   </Card>
                 </Pressable>
               );
@@ -110,12 +123,16 @@ export function NotificationsScreen({ navigation }: Props) {
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
             {selected ? (
               <>
-                <Text style={text.h2}>{selected.title}</Text>
-                <Text style={[text.caption, styles.modalDate]}>
-                  {formatDateTime(selected.publishedAt)}
+                <Text style={styles.modalTitle}>{selected.title}</Text>
+                <Text style={styles.modalMeta}>
+                  {formatDateTime(selected.publishedAt)} · {deliveryLabel(selected.sendSms)}
                 </Text>
-                <ScrollView style={styles.modalScroll} showsVerticalScrollIndicator={false}>
-                  <Text style={text.body}>{selected.body}</Text>
+                <ScrollView
+                  style={styles.modalScroll}
+                  contentContainerStyle={styles.modalScrollContent}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <Text style={styles.modalBody}>{selected.body}</Text>
                 </ScrollView>
                 <Button title="Fechar" onPress={closeDetail} />
               </>
@@ -137,48 +154,80 @@ const styles = StyleSheet.create({
   },
   scroll: {
     paddingBottom: 24,
+    width: "100%",
   },
   inner: {
     width: "100%",
-    maxWidth: CONTENT_MAX_WIDTH,
-    alignSelf: "center",
-    paddingHorizontal: SIDE_PADDING,
     paddingTop: 16,
-    gap: 12,
-    alignItems: "stretch",
+    gap: 10,
+  },
+  header: {
+    width: "100%",
+    paddingHorizontal: SIDE_PADDING,
+    gap: 4,
+    marginBottom: 4,
   },
   sub: {
     ...text.caption,
     textAlign: "left",
+  },
+  cardPress: {
+    width: "100%",
     alignSelf: "stretch",
-    marginBottom: 4,
+    paddingHorizontal: SIDE_PADDING,
   },
-  meta: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    marginBottom: 6,
-    flexWrap: "wrap",
+  rowCard: {
+    width: "100%",
+    alignSelf: "stretch",
+    alignItems: "flex-start",
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    gap: 6,
   },
-  summaryCard: {
+  rowCardRead: {
+    opacity: 0.94,
+  },
+  subject: {
+    fontFamily: fontFamily.bold,
+    fontSize: 16,
+    color: colors.navy,
+    lineHeight: 22,
+    textAlign: "left",
+    alignSelf: "stretch",
     width: "100%",
   },
-  summaryRead: {
-    opacity: 0.92,
-  },
-  excerpt: {
-    ...text.body,
-    textAlign: "left",
+  metaRow: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "flex-start",
     alignSelf: "stretch",
+    width: "100%",
+    gap: 6,
+  },
+  unreadDot: {
+    width: 9,
+    height: 9,
+    borderRadius: 5,
+    backgroundColor: colors.danger,
+    marginRight: 2,
+  },
+  metaText: {
+    fontFamily: fontFamily.regular,
+    fontSize: 13,
     color: colors.gray700,
-  },
-  tapHint: {
-    fontFamily: fontFamily.medium,
-    fontSize: 12,
-    color: colors.navyMid,
-    marginTop: 8,
     textAlign: "left",
-    alignSelf: "stretch",
+  },
+  metaSep: {
+    fontSize: 13,
+    color: colors.gray500,
+    textAlign: "left",
+  },
+  metaEnvio: {
+    fontFamily: fontFamily.medium,
+    fontSize: 13,
+    color: colors.navyMid,
+    textAlign: "left",
   },
   modalOverlay: {
     flex: 1,
@@ -190,17 +239,29 @@ const styles = StyleSheet.create({
     backgroundColor: colors.white,
     borderRadius: RADIUS,
     padding: 20,
-    maxWidth: CONTENT_MAX_WIDTH,
     width: "100%",
-    alignSelf: "center",
+    alignItems: "flex-start",
     maxHeight: "80%",
     gap: 12,
   },
-  modalDate: {
+  modalTitle: {
+    ...text.h2,
     textAlign: "left",
     alignSelf: "stretch",
+    width: "100%",
+  },
+  modalMeta: {
+    ...text.caption,
+    textAlign: "left",
   },
   modalScroll: {
     maxHeight: 280,
+  },
+  modalScrollContent: {
+    alignItems: "flex-start",
+  },
+  modalBody: {
+    ...text.body,
+    textAlign: "left",
   },
 });

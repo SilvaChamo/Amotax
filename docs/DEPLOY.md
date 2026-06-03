@@ -1,61 +1,56 @@
-# AMOTAX — Vercel + Supabase
+# AMOTAX — Vercel + Supabase Hetzner
 
-## 1. Supabase
+## 1. Supabase (`supabase.aamihe.com`)
 
-1. Criar projecto em [supabase.com](https://supabase.com).
-2. **SQL Editor** → colar e executar `scripts/supabase/amotax-schema.sql`.
-3. **Project Settings → API** → copiar:
-   - **Project URL** → `EXPO_PUBLIC_SUPABASE_URL`
-   - **anon public** → `EXPO_PUBLIC_SUPABASE_ANON_KEY`
+Tabelas `amotax_*` na instância Hetzner (partilhada com o site aamihe; dados AMOTAX ficam só nas tabelas `amotax_*`).
+
+**Opção A — no seu Mac (SSH):**
+
+```bash
+cd /Users/macbook/Desktop/APP/Amotax
+bash scripts/supabase/apply-hetzner.sh
+```
+
+**Opção B — Studio:** https://supabase.aamihe.com → SQL Editor → colar `scripts/supabase/amotax-schema.sql` → Run.
+
+Se `amotax_members` já existia: executar também `scripts/supabase/amotax-add-registration-kind.sql`.
+
+**Chaves** (servidor: `grep ANON_KEY /opt/supabase-aamihe/docker/.env`):
+
+| Variável | Valor |
+|----------|--------|
+| `EXPO_PUBLIC_SUPABASE_URL` | `https://supabase.aamihe.com` |
+| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | `ANON_KEY` do Hetzner |
 
 ### Local (porta 3005)
 
 ```bash
 cp mobile/.env.example mobile/.env
-# editar mobile/.env com URL e anon key
-cd /Users/macbook/Desktop/APP/Amotax
+# preencher ANON_KEY
 npm run dev
 ```
 
-Sem `.env`, a app usa só `AsyncStorage` (modo offline).
+Sem `.env`, a app usa só `AsyncStorage` (offline).
 
 ---
 
-## 2. Vercel (produção web)
+## 2. Vercel
 
-1. [vercel.com](https://vercel.com) → **Add New Project** → importar `SilvaChamo/Amotax`.
-2. O `vercel.json` na raiz já define build e pasta `mobile/dist`.
-3. **Environment Variables** (Production + Preview):
-
-| Nome | Valor |
-|------|--------|
-| `EXPO_PUBLIC_SUPABASE_URL` | URL do projecto Supabase |
-| `EXPO_PUBLIC_SUPABASE_ANON_KEY` | chave anon |
-
-4. **Deploy** → URL tipo `https://amotax-xxx.vercel.app`.
-
-### Build local (testar antes do deploy)
+1. Importar `SilvaChamo/Amotax`.
+2. Environment Variables: as duas `EXPO_PUBLIC_SUPABASE_*` acima.
+3. Deploy.
 
 ```bash
 npm run build:web
-# ficheiros em mobile/dist
 ```
 
 ---
 
-## 3. Desenvolvimento — porta 3005
-
-Na raiz do repositório:
+## 3. Dev
 
 ```bash
 npm install --prefix mobile
 npm run dev
 ```
 
-Abrir **http://localhost:3005**
-
----
-
-## Notas de segurança (piloto)
-
-As políticas RLS actuais permitem leitura/escrita com a chave `anon` (adequado ao piloto). Antes de dados reais em escala, activar autenticação Supabase e políticas por utilizador.
+→ http://localhost:3005

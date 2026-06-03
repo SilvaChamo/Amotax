@@ -23,7 +23,7 @@ import {
 } from "../storage/database";
 import { DEMO_GUEST_PHONE } from "../config/constants";
 import { countUnreadAnnouncements } from "../lib/notifications";
-import type { AppData, Member, RsvpResponse } from "../types";
+import type { AppData, Member, MemberRegistrationKind, RsvpResponse } from "../types";
 import { normalizePhone } from "../utils/phone";
 
 type AppContextValue = {
@@ -46,6 +46,7 @@ type AppContextValue = {
     praca?: string;
     smsOptIn: boolean;
     licensePlate?: string;
+    registrationKind: MemberRegistrationKind;
   }) => Promise<Member>;
   activate: (memberId: string) => Promise<void>;
   reject: (memberId: string) => Promise<void>;
@@ -114,6 +115,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
           name: "Administrador AMOTAX",
           zoneId: "maputo-centro",
           smsOptIn: true,
+          registrationKind: "mototaxi",
         });
         const activated = await activateMember(
           { ...data, members: [...data.members, reg] },
@@ -154,6 +156,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         adminPost: "Posto Baixa",
         praca: "Praça da Independência",
         smsOptIn: false,
+        registrationKind: "mototaxi",
       });
       current = await activateMember(next, reg.id);
       member = current.members.find((m) => m.id === reg.id)!;
@@ -183,6 +186,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       praca?: string;
       smsOptIn: boolean;
       licensePlate?: string;
+      registrationKind: MemberRegistrationKind;
     }) => {
       if (!data) throw new Error("Sem dados");
       const { data: next, member } = await registerMember(data, input);

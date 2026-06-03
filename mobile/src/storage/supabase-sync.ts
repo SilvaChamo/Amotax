@@ -27,6 +27,7 @@ type MemberRow = {
   member_number: string | null;
   sms_opt_in: boolean;
   license_plate: string | null;
+  registration_kind: string;
   created_at: string;
   is_admin: boolean;
 };
@@ -46,6 +47,8 @@ function rowToMember(r: MemberRow): Member {
     memberNumber: r.member_number ?? undefined,
     smsOptIn: r.sms_opt_in,
     licensePlate: r.license_plate ?? undefined,
+    registrationKind:
+      r.registration_kind === "tchopela" ? "tchopela" : "mototaxi",
     createdAt: r.created_at,
     isAdmin: r.is_admin,
   };
@@ -66,6 +69,7 @@ function memberToRow(m: Member): MemberRow {
     member_number: m.memberNumber ?? null,
     sms_opt_in: m.smsOptIn,
     license_plate: m.licensePlate ?? null,
+    registration_kind: m.registrationKind,
     created_at: m.createdAt,
     is_admin: Boolean(m.isAdmin),
   };
@@ -145,7 +149,7 @@ export async function loadSharedAppDataFromSupabase(): Promise<AppData | null> {
     announcements,
     meetings,
     rsvps,
-    readAnnouncementIds: [],
+    readAnnouncements: {},
   };
 }
 

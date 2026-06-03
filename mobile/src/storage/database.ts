@@ -17,6 +17,7 @@ import type {
   Due,
   Meeting,
   Member,
+  MemberRegistrationKind,
   MeetingRsvp,
 } from "../types";
 import { createId } from "../utils/id";
@@ -35,7 +36,7 @@ function seedData(): AppData {
     announcements: defaultAnnouncements(),
     meetings: [],
     rsvps: [],
-    readAnnouncementIds: [],
+    readAnnouncements: {},
   };
 }
 
@@ -76,13 +77,26 @@ function normalizeAppData(data: AppData): AppData {
   return {
     ...data,
     announcements: merged,
-    readAnnouncementIds: data.readAnnouncementIds ?? [],
+    readAnnouncements: normalizeReadAnnouncements(data),
+    members: data.members.map((m) => ({
+      ...m,
+      registrationKind: m.registrationKind ?? "mototaxi",
+    })),
   };
+}
+
+function normalizeReadAnnouncements(data: AppData): Record<string, string> {
+  const map = { ...(data.readAnnouncements ?? {}) };
+  for (const id of data.readAnnouncementIds ?? []) {
+    if (!map[id]) map[id] = new Date(0).toISOString();
+  }
+  return map;
 }
 
 type LocalPrefs = {
   sessionPhone?: string;
   readAnnouncementIds?: string[];
+  readAnnouncements?: Record<string, string>;
 };
 
 async function loadLocalPrefs(): Promise<LocalPrefs> {
@@ -103,13 +117,17 @@ function applyLocalPrefs(data: AppData, prefs: LocalPrefs): AppData {
   return {
     ...data,
     sessionPhone: prefs.sessionPhone,
-    readAnnouncementIds: prefs.readAnnouncementIds ?? [],
+    readAnnouncements: normalizeReadAnnouncements({
+      readAnnouncements: prefs.readAnnouncements,
+      readAnnouncementIds: prefs.readAnnouncementIds,
+    } as AppData),
   };
 }
 
 function stripLocalPrefs(data: AppData): AppData {
-  const { sessionPhone: _s, readAnnouncementIds: _r, ...shared } = data;
-  return { ...shared, readAnnouncementIds: [] };
+  const { sessionPhone: _s, readAnnouncementIds: _r, readAnnouncements: _ra, ...shared } =
+    data;
+  return { ...shared, readAnnouncements: {} };
 }
 
 export async function loadAppData(): Promise<AppData> {
@@ -145,7 +163,7 @@ export async function loadAppData(): Promise<AppData> {
 export async function saveAppData(data: AppData): Promise<void> {
   const prefs: LocalPrefs = {
     sessionPhone: data.sessionPhone,
-    readAnnouncementIds: data.readAnnouncementIds ?? [],
+    readAnnouncements: normalizeReadAnnouncements(data),
   };
   await saveLocalPrefs(prefs);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
@@ -200,6 +218,7 @@ export async function registerMember(
     praca?: string;
     smsOptIn: boolean;
     licensePlate?: string;
+    registrationKind: MemberRegistrationKind;
   },
 ): Promise<{ data: AppData; member: Member }> {
   const phone = normalizePhone(input.phone);
@@ -220,6 +239,7 @@ export async function registerMember(
     status: "pending",
     smsOptIn: input.smsOptIn,
     licensePlate: input.licensePlate?.trim(),
+    registrationKind: input.registrationKind,
     createdAt: new Date().toISOString(),
     isAdmin: isAdminPhone(phone),
   };
@@ -296,8 +316,11 @@ export async function markAnnouncementsReadByIds(
   data: AppData,
   ids: string[],
 ): Promise<AppData> {
-  const merged = new Set([...(data.readAnnouncementIds ?? []), ...ids]);
-  const next = { ...data, readAnnouncementIds: [...merged] };
+  const readAt = new Date().toISOString();
+  const map = normalizeReadAnnouncements(data);
+  for (const id of ids) map[id] = readAt;
+  const { readAnnouncementIds: _legacy, ...rest } = data;
+  const next = { ...rest, readAnnouncements: map };
   await saveAppData(next);
   return next;
 }
