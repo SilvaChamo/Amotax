@@ -6,6 +6,7 @@ import {
   ViewStyle,
 } from "react-native";
 import { colors } from "../../theme/colors";
+import { RADIUS } from "../../theme/radius";
 import { fontFamily } from "../../theme/typography";
 
 type Variant = "primary" | "secondary" | "outline" | "danger";
@@ -68,19 +69,19 @@ export function Button({
 
 const styles = StyleSheet.create({
   base: {
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: RADIUS,
     alignItems: "center",
     justifyContent: "center",
-    minHeight: 52,
+    minHeight: 44,
     width: "100%",
     maxWidth: 440,
     alignSelf: "center",
   },
   label: {
     fontFamily: fontFamily.bold,
-    fontSize: 16,
+    fontSize: 15,
   },
   pressed: { opacity: 0.88 },
   disabled: { opacity: 0.5 },

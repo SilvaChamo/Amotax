@@ -1,25 +1,35 @@
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Rect } from "react-native-svg";
-import { Screen } from "../../components/ui/Screen";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { useApp } from "../../context/AppContext";
+import { formatMemberLocation } from "../../data/mozambique-locations";
 import { colors } from "../../theme/colors";
+import { RADIUS } from "../../theme/radius";
 import { fontFamily, text } from "../../theme/typography";
 import { formatPhoneDisplay } from "../../utils/phone";
+import type { RootStackParamList } from "../../navigation/types";
 
-/** Cartão digital simplificado (QR representado visualmente no piloto) */
 export function MemberCardScreen() {
-  const { data, sessionMember } = useApp();
-  const zone = data?.zones.find((z) => z.id === sessionMember?.zoneId);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { sessionMember } = useApp();
   const code = sessionMember?.memberNumber ?? sessionMember?.id ?? "AMOTAX";
+  const location = formatMemberLocation(sessionMember ?? {});
 
   return (
-    <Screen title="Cartão de membro" subtitle="Apresente na reunião ou fiscalização">
+    <MemberScreenLayout
+      showBack
+      onBack={() => navigation.goBack()}
+      title="Cartão de membro"
+      subtitle="Apresente na reunião ou fiscalização"
+    >
       <View style={styles.card}>
         <View style={styles.strip} />
         <Text style={styles.brand}>AMOTAX</Text>
         <Text style={styles.name}>{sessionMember?.name}</Text>
         <Text style={styles.num}>{code}</Text>
-        <Text style={styles.meta}>{zone?.name}</Text>
+        <Text style={styles.meta}>{location}</Text>
         <Text style={styles.meta}>{formatPhoneDisplay(sessionMember?.phone ?? "")}</Text>
         <View style={styles.qrWrap}>
           <Svg width={140} height={140} viewBox="0 0 140 140">
@@ -48,19 +58,20 @@ export function MemberCardScreen() {
           Cartão pleno disponível após activação da inscrição.
         </Text>
       )}
-    </Screen>
+    </MemberScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.cardBg,
-    borderRadius: 20,
+    borderRadius: RADIUS,
     padding: 24,
     alignItems: "center",
     borderWidth: 2,
     borderColor: colors.navy,
     overflow: "hidden",
+    width: "100%",
   },
   strip: {
     position: "absolute",
@@ -94,6 +105,7 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: colors.gray500,
     marginTop: 4,
+    textAlign: "center",
   },
-  qrWrap: { marginTop: 20, padding: 12, backgroundColor: colors.gray100, borderRadius: 12 },
+  qrWrap: { marginTop: 20, padding: 12, backgroundColor: colors.gray100, borderRadius: RADIUS },
 });

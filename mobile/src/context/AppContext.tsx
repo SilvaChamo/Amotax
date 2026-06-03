@@ -20,6 +20,7 @@ import {
   setSession,
   submitDueReceipt,
 } from "../storage/database";
+import { DEMO_GUEST_PHONE } from "../config/constants";
 import type { AppData, Member, RsvpResponse } from "../types";
 import { normalizePhone } from "../utils/phone";
 
@@ -30,11 +31,17 @@ type AppContextValue = {
   sessionMember: Member | null;
   isAdmin: boolean;
   login: (phone: string) => Promise<Member | null>;
+  enterAsGuest: () => Promise<void>;
   logout: () => Promise<void>;
   register: (input: {
     phone: string;
     name: string;
     zoneId: string;
+    province?: string;
+    district?: string;
+    municipality?: string;
+    adminPost?: string;
+    praca?: string;
     smsOptIn: boolean;
     licensePlate?: string;
   }) => Promise<Member>;
@@ -114,6 +121,32 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     [data],
   );
 
+  const enterAsGuest = useCallback(async () => {
+    if (!data) return;
+    const phone = normalizePhone(DEMO_GUEST_PHONE);
+    let current = data;
+    let member = findMemberByPhone(current, phone);
+    if (!member) {
+        const { data: next, member: reg } = await registerMember(current, {
+        phone,
+        name: "Visitante (piloto)",
+        zoneId: "maputo-cidade:kampfumo:posto-baixa",
+        province: "Maputo Cidade",
+        district: "KaMpfumo",
+        adminPost: "Posto Baixa",
+        praca: "Praça da Independência",
+        smsOptIn: false,
+      });
+      current = await activateMember(next, reg.id);
+      member = current.members.find((m) => m.id === reg.id)!;
+    } else if (member.status !== "active") {
+      current = await activateMember(current, member.id);
+      member = current.members.find((m) => m.id === member!.id)!;
+    }
+    const next = await setSession(current, phone);
+    setData(next);
+  }, [data]);
+
   const logout = useCallback(async () => {
     if (!data) return;
     const next = await setSession(data, undefined);
@@ -125,6 +158,11 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       phone: string;
       name: string;
       zoneId: string;
+      province?: string;
+      district?: string;
+      municipality?: string;
+      adminPost?: string;
+      praca?: string;
       smsOptIn: boolean;
       licensePlate?: string;
     }) => {
@@ -212,6 +250,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     sessionMember,
     isAdmin,
     login,
+    enterAsGuest,
     logout,
     register,
     activate,

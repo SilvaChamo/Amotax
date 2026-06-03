@@ -1,12 +1,15 @@
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { Text, View } from "react-native";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
-import { Screen } from "../../components/ui/Screen";
 import { useApp } from "../../context/AppContext";
 import { text } from "../../theme/typography";
 import { formatDateTime } from "../../utils/date";
 import type { RsvpResponse } from "../../types";
+import type { MainTabParamList } from "../../navigation/types";
 
 const rsvpLabels: Record<RsvpResponse, string> = {
   yes: "Confirmo presença",
@@ -15,6 +18,7 @@ const rsvpLabels: Record<RsvpResponse, string> = {
 };
 
 export function MeetingsScreen() {
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const { data, sessionMember, respondMeeting } = useApp();
   const meetings = data?.meetings ?? [];
 
@@ -24,7 +28,12 @@ export function MeetingsScreen() {
     );
 
   return (
-    <Screen title="Reuniões" subtitle="Convites e confirmação de presença">
+    <MemberScreenLayout
+      showBack
+      onBack={() => navigation.navigate("Home")}
+      title="Reuniões"
+      subtitle="Convites e confirmação de presença"
+    >
       {meetings.map((m) => {
         const rsvp = myRsvp(m.id);
         return (
@@ -57,6 +66,6 @@ export function MeetingsScreen() {
       {meetings.length === 0 && (
         <Text style={text.body}>Nenhuma reunião agendada de momento.</Text>
       )}
-    </Screen>
+    </MemberScreenLayout>
   );
 }

@@ -1,14 +1,18 @@
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { StyleSheet, Text } from "react-native";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { Badge } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
-import { Screen } from "../../components/ui/Screen";
 import { useApp } from "../../context/AppContext";
+import { formatMemberLocation } from "../../data/mozambique-locations";
 import { text } from "../../theme/typography";
 import { formatPhoneDisplay } from "../../utils/phone";
+import type { MainTabParamList } from "../../navigation/types";
 
 export function ProfileScreen() {
-  const { data, sessionMember } = useApp();
-  const zone = data?.zones.find((z) => z.id === sessionMember?.zoneId);
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
+  const { sessionMember } = useApp();
 
   const statusLabel =
     sessionMember?.status === "active"
@@ -25,17 +29,27 @@ export function ProfileScreen() {
         : "danger";
 
   return (
-    <Screen title="O meu perfil" subtitle="Dados de membro AMOTAX">
+    <MemberScreenLayout
+      showBack
+      onBack={() => navigation.navigate("Home")}
+      title="O meu perfil"
+      subtitle="Dados de membro AMOTAX"
+    >
       <Card>
         <Text style={text.h3}>{sessionMember?.name}</Text>
         <Badge label={statusLabel} tone={statusTone as "success"} />
         <Row label="Nº membro" value={sessionMember?.memberNumber ?? "—"} />
         <Row label="Telemóvel" value={formatPhoneDisplay(sessionMember?.phone ?? "")} />
-        <Row label="Zona" value={zone?.name ?? "—"} />
+        <Row label="Província" value={sessionMember?.province ?? "—"} />
+        <Row label="Distrito" value={sessionMember?.district ?? "—"} />
+        <Row label="Município / local" value={sessionMember?.municipality ?? "—"} />
+        <Row label="Posto administrativo" value={sessionMember?.adminPost ?? "—"} />
+        <Row label="Praça" value={sessionMember?.praca ?? "—"} />
+        <Row label="Zona" value={formatMemberLocation(sessionMember ?? {})} />
         <Row label="Matrícula" value={sessionMember?.licensePlate ?? "—"} />
         <Row label="SMS" value={sessionMember?.smsOptIn ? "Activado" : "Desactivado"} />
       </Card>
-    </Screen>
+    </MemberScreenLayout>
   );
 }
 

@@ -15,6 +15,11 @@ export interface Member {
   phone: string;
   name: string;
   zoneId: string;
+  province?: string;
+  district?: string;
+  municipality?: string;
+  adminPost?: string;
+  praca?: string;
   status: MemberStatus;
   memberNumber?: string;
   smsOptIn: boolean;

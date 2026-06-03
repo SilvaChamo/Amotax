@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from "react-native";
 import { colors } from "../../theme/colors";
+import { RADIUS } from "../../theme/radius";
 import { fontFamily } from "../../theme/typography";
 
 type Tone = "yellow" | "navy" | "success" | "warning" | "danger";
@@ -26,7 +27,7 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 20,
+    borderRadius: RADIUS,
   },
   text: {
     fontFamily: fontFamily.medium,

@@ -2,14 +2,14 @@ import { useNavigation } from "@react-navigation/native";
 import { CompositeNavigationProp } from "@react-navigation/native";
 import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
-import { Screen } from "../../components/ui/Screen";
 import { useApp } from "../../context/AppContext";
-import { colors } from "../../theme/colors";
 import { text, fontFamily } from "../../theme/typography";
+import { colors } from "../../theme/colors";
 import { monthLabel, currentYearMonth } from "../../utils/date";
 import type { MainTabParamList, RootStackParamList } from "../../navigation/types";
 
@@ -20,7 +20,7 @@ type Nav = CompositeNavigationProp<
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
-  const { data, sessionMember, logout, isAdmin } = useApp();
+  const { data, sessionMember, isAdmin } = useApp();
   const { year, month } = currentYearMonth();
 
   const due = data?.dues.find(
@@ -41,15 +41,14 @@ export function HomeScreen() {
     due?.status === "paid" ? "success" : due?.status === "review" ? "warning" : "danger";
 
   return (
-    <Screen
-      title={`Olá, ${sessionMember?.name.split(" ")[0] ?? "Membro"}`}
-      subtitle={sessionMember?.memberNumber ?? "Aguarda activação"}
-      headerRight={
-        <Pressable onPress={() => logout()}>
-          <Text style={styles.logout}>Sair</Text>
-        </Pressable>
-      }
-    >
+    <MemberScreenLayout>
+      <Text style={styles.greeting}>
+        Olá, {sessionMember?.name.split(" ")[0] ?? "Membro"}
+      </Text>
+      <Text style={styles.memberNum}>
+        {sessionMember?.memberNumber ?? "Aguarda activação"}
+      </Text>
+
       {sessionMember?.status === "pending" && (
         <Card style={styles.pending}>
           <Badge label="Inscrição pendente" tone="warning" />
@@ -115,12 +114,19 @@ export function HomeScreen() {
           onPress={() => navigation.navigate("Admin")}
         />
       )}
-    </Screen>
+    </MemberScreenLayout>
   );
 }
 
 const styles = StyleSheet.create({
-  logout: { fontFamily: fontFamily.medium, color: colors.yellow, fontSize: 14 },
+  greeting: {
+    ...text.h2,
+    marginBottom: 4,
+  },
+  memberNum: {
+    ...text.caption,
+    marginBottom: 12,
+  },
   pending: { borderColor: colors.warning },
   amount: {
     fontFamily: fontFamily.bold,

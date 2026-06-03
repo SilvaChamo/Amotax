@@ -1,5 +1,6 @@
 import { StyleSheet, View, ViewProps } from "react-native";
 import { colors } from "../../theme/colors";
+import { RADIUS } from "../../theme/radius";
 
 type Props = ViewProps & {
   centered?: boolean;
@@ -16,7 +17,7 @@ export function Card({ style, children, centered = true, ...rest }: Props) {
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.cardBg,
-    borderRadius: 16,
+    borderRadius: RADIUS,
     padding: 16,
     borderWidth: 1,
     borderColor: colors.gray200,

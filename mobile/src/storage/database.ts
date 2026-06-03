@@ -93,6 +93,11 @@ export async function registerMember(
     phone: string;
     name: string;
     zoneId: string;
+    province?: string;
+    district?: string;
+    municipality?: string;
+    adminPost?: string;
+    praca?: string;
     smsOptIn: boolean;
     licensePlate?: string;
   },
@@ -107,6 +112,11 @@ export async function registerMember(
     phone,
     name: input.name.trim(),
     zoneId: input.zoneId,
+    province: input.province,
+    district: input.district,
+    municipality: input.municipality,
+    adminPost: input.adminPost,
+    praca: input.praca,
     status: "pending",
     smsOptIn: input.smsOptIn,
     licensePlate: input.licensePlate?.trim(),

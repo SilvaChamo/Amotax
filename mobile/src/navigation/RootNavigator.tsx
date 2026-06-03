@@ -12,14 +12,6 @@ import type { RootStackParamList } from "./types";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
-const stackHeader = {
-  headerShown: true as const,
-  headerStyle: { backgroundColor: colors.navy },
-  headerTintColor: colors.white,
-  headerTitleAlign: "center" as const,
-  headerTitleStyle: { fontFamily: "Ubuntu-Medium" },
-};
-
 export function RootNavigator() {
   const { loading, sessionMember } = useApp();
 
@@ -46,16 +38,8 @@ export function RootNavigator() {
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
-            <Stack.Screen
-              name="Dues"
-              component={DuesScreen}
-              options={{ ...stackHeader, title: "Cotas" }}
-            />
-            <Stack.Screen
-              name="MemberCard"
-              component={MemberCardScreen}
-              options={{ ...stackHeader, title: "Cartão de membro" }}
-            />
+            <Stack.Screen name="Dues" component={DuesScreen} />
+            <Stack.Screen name="MemberCard" component={MemberCardScreen} />
             <Stack.Screen name="Admin" component={AdminNavigator} />
           </>
         )}

@@ -1,17 +1,26 @@
+import { useNavigation } from "@react-navigation/native";
+import { BottomTabNavigationProp } from "@react-navigation/bottom-tabs";
 import { StyleSheet, Text, View } from "react-native";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { Badge } from "../../components/ui/Badge";
 import { Card } from "../../components/ui/Card";
-import { Screen } from "../../components/ui/Screen";
 import { useApp } from "../../context/AppContext";
 import { text } from "../../theme/typography";
 import { formatDateTime } from "../../utils/date";
+import type { MainTabParamList } from "../../navigation/types";
 
 export function AnnouncementsScreen() {
+  const navigation = useNavigation<BottomTabNavigationProp<MainTabParamList>>();
   const { data } = useApp();
   const list = data?.announcements ?? [];
 
   return (
-    <Screen title="Avisos" subtitle="Comunicados da AMOTAX">
+    <MemberScreenLayout
+      showBack
+      onBack={() => navigation.navigate("Home")}
+      title="Avisos"
+      subtitle="Comunicados da AMOTAX"
+    >
       {list.map((a) => (
         <Card key={a.id}>
           <View style={styles.meta}>
@@ -23,7 +32,7 @@ export function AnnouncementsScreen() {
         </Card>
       ))}
       {list.length === 0 && <Text style={text.body}>Sem avisos publicados.</Text>}
-    </Screen>
+    </MemberScreenLayout>
   );
 }
 

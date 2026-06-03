@@ -1,20 +1,27 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { AppBackground } from "../../components/AppBackground";
 import { LogoHeader } from "../../components/LogoHeader";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
-import { Screen } from "../../components/ui/Screen";
 import { DEMO_OTP } from "../../config/constants";
+import { useApp } from "../../context/AppContext";
+import { contentBlock } from "../../theme/layout";
 import { colors } from "../../theme/colors";
 import { isValidMozPhone, normalizePhone } from "../../utils/phone";
 import type { AuthStackParamList } from "../../navigation/types";
 
+const loginBg = require("../../../assets/imagem/Bg2.jpeg");
+
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export function LoginScreen({ navigation }: Props) {
+  const { enterAsGuest } = useApp();
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
+  const [guestLoading, setGuestLoading] = useState(false);
 
   const continueFlow = () => {
     if (!isValidMozPhone(phone)) {
@@ -25,34 +32,78 @@ export function LoginScreen({ navigation }: Props) {
     navigation.navigate("Otp", { phone: normalizePhone(phone), mode: "login" });
   };
 
+  const skipLogin = async () => {
+    setGuestLoading(true);
+    try {
+      await enterAsGuest();
+    } finally {
+      setGuestLoading(false);
+    }
+  };
+
   return (
-    <Screen title="Entrar" subtitle="Use o número de telemóvel registado">
-      <LogoHeader compact />
-      <Input
-        label="Telemóvel"
-        placeholder="84 123 4567"
-        keyboardType="phone-pad"
-        value={phone}
-        onChangeText={setPhone}
-        error={error}
-      />
-      <Text style={styles.hint}>Piloto: código SMS = {DEMO_OTP}</Text>
-      <Button title="Receber código" onPress={continueFlow} />
-      <Button
-        title="Ainda não tenho conta"
-        variant="outline"
-        onPress={() => navigation.navigate("Register")}
-      />
-    </Screen>
+    <AppBackground image={loginBg}>
+      <SafeAreaView style={styles.root} edges={["left", "right", "bottom"]}>
+        <View style={styles.center}>
+          <View style={contentBlock}>
+            <LogoHeader size="login" onDark />
+            <Input
+              label="Telemóvel"
+              placeholder="84 123 4567"
+              keyboardType="phone-pad"
+              value={phone}
+              onChangeText={setPhone}
+              error={error}
+            />
+            <Text style={styles.hint}>Piloto: código SMS = {DEMO_OTP}</Text>
+          </View>
+        </View>
+        <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
+          <View style={[styles.footer, contentBlock]}>
+            <Button title="Receber código" onPress={continueFlow} />
+            <Button
+              title="Ainda não tenho conta"
+              variant="outline"
+              onPress={() => navigation.navigate("Register")}
+            />
+            <Button
+              title="Entrar sem login (explorar)"
+              variant="secondary"
+              onPress={skipLogin}
+              loading={guestLoading}
+            />
+          </View>
+        </SafeAreaView>
+      </SafeAreaView>
+    </AppBackground>
   );
 }
 
 const styles = StyleSheet.create({
+  root: { flex: 1 },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 20,
+  },
   hint: {
     fontSize: 13,
-    color: colors.gray500,
+    color: colors.yellowLight,
     marginBottom: 8,
     textAlign: "center",
     width: "100%",
+    textShadowColor: "rgba(0,0,0,0.4)",
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 3,
+  },
+  footerSafe: { width: "100%", alignItems: "center" },
+  footer: {
+    gap: 12,
+    width: "100%",
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    paddingBottom: 16,
+    alignItems: "center",
   },
 });

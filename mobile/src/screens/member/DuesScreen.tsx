@@ -1,13 +1,17 @@
 import * as ImagePicker from "expo-image-picker";
+import { useNavigation } from "@react-navigation/native";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Alert, Image, StyleSheet, Text } from "react-native";
+import { MemberScreenLayout } from "../../components/MemberScreenLayout";
 import { Badge } from "../../components/ui/Badge";
 import { Button } from "../../components/ui/Button";
 import { Card } from "../../components/ui/Card";
-import { Screen } from "../../components/ui/Screen";
 import { useApp } from "../../context/AppContext";
 import { colors } from "../../theme/colors";
+import { RADIUS } from "../../theme/radius";
 import { text, fontFamily } from "../../theme/typography";
 import { monthLabel } from "../../utils/date";
+import type { RootStackParamList } from "../../navigation/types";
 
 const statusMap = {
   pending: { label: "Em falta", tone: "danger" as const },
@@ -17,6 +21,7 @@ const statusMap = {
 };
 
 export function DuesScreen() {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { data, sessionMember, submitReceipt } = useApp();
   const dues = (data?.dues ?? [])
     .filter((d) => d.memberId === sessionMember?.id)
@@ -39,7 +44,12 @@ export function DuesScreen() {
   };
 
   return (
-    <Screen title="Cotas mensais" subtitle="Valores simbólicos da associação">
+    <MemberScreenLayout
+      showBack
+      onBack={() => navigation.goBack()}
+      title="Cotas mensais"
+      subtitle="Valores simbólicos da associação"
+    >
       <Card style={styles.info}>
         <Text style={text.body}>
           Piloto: transfira para a conta da AMOTAX e envie foto do comprovativo. Pagamento
@@ -66,7 +76,7 @@ export function DuesScreen() {
       {dues.length === 0 && (
         <Text style={text.body}>Sem cotas registadas. Active a conta primeiro.</Text>
       )}
-    </Screen>
+    </MemberScreenLayout>
   );
 }
 
@@ -84,5 +94,5 @@ const styles = StyleSheet.create({
     color: colors.yellowDark,
     textAlign: "center",
   },
-  thumb: { width: "100%", maxWidth: 280, height: 120, borderRadius: 8 },
+  thumb: { width: "100%", maxWidth: 280, height: 120, borderRadius: RADIUS },
 });

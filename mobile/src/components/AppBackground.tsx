@@ -1,16 +1,17 @@
-import { ImageBackground, StyleSheet, View, ViewStyle } from "react-native";
+import { ImageBackground, ImageSourcePropType, StyleSheet, View, ViewStyle } from "react-native";
 import { colors } from "../theme/colors";
 
-const backgroundImage = require("../../assets/imagem/Amotax.webp");
+const defaultImage = require("../../assets/imagem/Amotax.webp");
 
 type Props = {
   children: React.ReactNode;
   style?: ViewStyle;
+  image?: ImageSourcePropType;
 };
 
-export function AppBackground({ children, style }: Props) {
+export function AppBackground({ children, style, image = defaultImage }: Props) {
   return (
-    <ImageBackground source={backgroundImage} style={styles.image} resizeMode="cover">
+    <ImageBackground source={image} style={styles.image} resizeMode="cover">
       <View style={[styles.overlay, style]}>{children}</View>
     </ImageBackground>
   );

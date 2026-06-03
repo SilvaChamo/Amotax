@@ -42,7 +42,8 @@ export function OtpScreen({ route, navigation }: Props) {
   };
 
   return (
-    <Screen title="Código SMS" subtitle={`Enviado para ${formatPhoneDisplay(phone)}`}>
+    <Screen footer={<Button title="Confirmar" onPress={verify} loading={loading} />}>
+      <Text style={[text.h3, styles.phone]}>{formatPhoneDisplay(phone)}</Text>
       <Text style={[text.body, styles.note]}>
         Simulação de SMS no piloto.{"\n"}Código de teste: {DEMO_OTP}
       </Text>
@@ -54,11 +55,11 @@ export function OtpScreen({ route, navigation }: Props) {
         value={code}
         onChangeText={setCode}
       />
-      <Button title="Confirmar" onPress={verify} loading={loading} />
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
+  phone: { marginBottom: 8, width: "100%" },
   note: { marginBottom: 4, width: "100%" },
 });

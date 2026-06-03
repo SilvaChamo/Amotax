@@ -1,9 +1,11 @@
 import { useFonts } from "expo-font";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
+import { ActivityIndicator, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { AppProvider } from "./src/context/AppContext";
 import { RootNavigator } from "./src/navigation/RootNavigator";
+import { colors } from "./src/theme/colors";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,7 +21,20 @@ export default function App() {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
 
-  if (!loaded) return null;
+  if (!loaded) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: colors.gray100,
+        }}
+      >
+        <ActivityIndicator size="large" color={colors.yellow} />
+      </View>
+    );
+  }
 
   return (
     <AppProvider>
