@@ -19,27 +19,24 @@ export const SIDE_PADDING = 20;
 export const LOGO_BAR_WIDTH = 220;
 export const LOGO_BAR_HEIGHT = 96;
 
-/** Coluna principal — usar em formulários e blocos centrados */
+/** Coluna principal — largura total do ecrã */
 export const contentBlock: ViewStyle = {
   width: "100%",
-  maxWidth: APP_CONTENT_MAX_WIDTH,
-  alignSelf: "center",
+  alignSelf: "stretch",
   alignItems: "stretch",
   gap: 14,
 };
 
-/** Raiz de página: centra a coluna em ecrãs largos (tablet) */
+/** Raiz de página */
 export const pageRoot: ViewStyle = {
   flex: 1,
   width: "100%",
-  alignItems: "center",
 };
 
-/** Coluna de página (mesma largura em todas as rotas) */
+/** Coluna de página */
 export const pageColumn: ViewStyle = {
   flex: 1,
   width: "100%",
-  maxWidth: APP_CONTENT_MAX_WIDTH,
 };
 
 /** Conteúdo com padding lateral padrão */

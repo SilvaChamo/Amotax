@@ -2,8 +2,7 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { PublicAppHeader } from "../../components/PublicAppHeader";
-import { TopBarButton } from "../../components/TopBarButton";
+import { MemberTopBar } from "../../components/MemberTopBar";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { DEMO_OTP } from "../../config/constants";
@@ -44,18 +43,17 @@ export function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.page}>
+      <MemberTopBar
+        showBack
+        onBack={() => navigation.navigate("Welcome")}
+        showLogout={false}
+      />
       <SafeAreaView
         style={styles.root}
-        edges={isLandscape ? ["top", "left", "right", "bottom"] : ["left", "right"]}
+        edges={isLandscape ? ["left", "right", "bottom"] : ["left", "right"]}
       >
-        <PublicAppHeader
-          left={
-            <TopBarButton label="Voltar" onPress={() => navigation.navigate("Welcome")} />
-          }
-        />
-
         <View style={styles.center}>
-          <View style={contentBlockStyle}>
+          <View style={[contentBlockStyle, styles.phoneForm]}>
             <Text style={styles.phonePrompt}>Digite seu numero de telefone</Text>
             <Input
               placeholder="84 123 4567"
@@ -100,6 +98,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingHorizontal: 20,
+  },
+  phoneForm: {
+    width: "100%",
+    maxWidth: 300,
+    alignSelf: "center",
+    alignItems: "stretch",
   },
   phonePrompt: {
     fontFamily: fontFamily.medium,

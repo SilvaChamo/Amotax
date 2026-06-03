@@ -26,8 +26,7 @@ export function Screen({
   centered = true,
   omitTopSafeArea = false,
 }: Props) {
-  const { contentBlockStyle, sidePadding, contentMaxWidth, isLandscape } =
-    useResponsiveLayoutContext();
+  const { contentBlockStyle, sidePadding, isLandscape } = useResponsiveLayoutContext();
 
   const inner = centered ? (
     <View style={contentBlockStyle}>{children}</View>
@@ -102,15 +101,7 @@ export function Screen({
         {body}
         {footer ? (
           <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
-            <View
-              style={[
-                styles.footer,
-                {
-                  paddingHorizontal: sidePadding,
-                  maxWidth: contentMaxWidth,
-                },
-              ]}
-            >
+            <View style={[styles.footer, { paddingHorizontal: sidePadding }]}>
               {footer}
             </View>
           </SafeAreaView>
@@ -165,6 +156,6 @@ const styles = StyleSheet.create({
     alignItems: "stretch",
     gap: 12,
     width: "100%",
-    alignSelf: "center",
+    alignSelf: "stretch",
   },
 });
