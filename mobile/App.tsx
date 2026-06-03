@@ -1,8 +1,10 @@
 import { useFonts } from "expo-font";
+import { Image } from "expo-image";
 import * as SplashScreen from "expo-splash-screen";
 import { useEffect } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
+import { AppContentFrame } from "./src/components/AppContentFrame";
 import { AppProvider } from "./src/context/AppContext";
 import { RootNavigator } from "./src/navigation/RootNavigator";
 import { colors } from "./src/theme/colors";
@@ -20,6 +22,11 @@ export default function App() {
   useEffect(() => {
     if (loaded) SplashScreen.hideAsync();
   }, [loaded]);
+
+  useEffect(() => {
+    void Image.prefetch(require("./assets/imagem/Amotax.webp"));
+    void Image.prefetch(require("./assets/imagem/Logotipo.png"));
+  }, []);
 
   if (!loaded) {
     return (
@@ -39,7 +46,9 @@ export default function App() {
   return (
     <AppProvider>
       <StatusBar style="light" />
-      <RootNavigator />
+      <AppContentFrame>
+        <RootNavigator />
+      </AppContentFrame>
     </AppProvider>
   );
 }

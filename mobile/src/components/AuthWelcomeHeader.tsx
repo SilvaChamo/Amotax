@@ -2,19 +2,25 @@ import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LogoHeader } from "./LogoHeader";
-import { contentBlock } from "../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../context/ResponsiveLayoutContext";
 
 type Props = {
   leftAction?: ReactNode;
 };
 
 export function AuthWelcomeHeader({ leftAction }: Props) {
+  const { contentBlockStyle, sidePadding, isLandscape } =
+    useResponsiveLayoutContextSafe();
+
   return (
-    <SafeAreaView edges={["top"]} style={styles.header}>
-      <View style={styles.headerContent}>
+    <SafeAreaView
+      edges={isLandscape ? ["top", "left", "right"] : ["top"]}
+      style={styles.header}
+    >
+      <View style={[styles.headerContent, { paddingHorizontal: sidePadding }]}>
         {leftAction ? <View style={styles.actionRow}>{leftAction}</View> : null}
-        <View style={contentBlock}>
-          <LogoHeader size="bar" onDark showTag={false} flat />
+        <View style={contentBlockStyle}>
+          <LogoHeader size="bar" onDark showTag={false} />
         </View>
       </View>
       <View style={styles.headerLine} />
@@ -30,14 +36,12 @@ const styles = StyleSheet.create({
   headerContent: {
     width: "100%",
     alignItems: "center",
-    paddingHorizontal: 24,
     paddingTop: 6,
     paddingBottom: 4,
   },
   actionRow: {
     width: "100%",
-    maxWidth: 440,
-    alignSelf: "center",
+    alignSelf: "stretch",
     alignItems: "flex-start",
     marginBottom: 6,
   },

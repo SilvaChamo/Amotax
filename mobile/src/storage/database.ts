@@ -130,21 +130,54 @@ function stripLocalPrefs(data: AppData): AppData {
   return { ...shared, readAnnouncements: {} };
 }
 
-export async function loadAppData(): Promise<AppData> {
+/** Carregamento rápido: cache local primeiro (não espera Supabase). */
+export async function loadAppDataLocal(): Promise<AppData> {
   const prefs = await loadLocalPrefs();
-
-  if (isSupabaseConfigured()) {
-    const remote = await loadSharedAppDataFromSupabase();
-    if (remote) {
-      let merged = applyLocalPrefs(normalizeAppData(remote), prefs);
-      if (merged.announcements.length === 0) {
-        merged = normalizeAppData({ ...merged, announcements: defaultAnnouncements() });
-        await persistSharedAppDataToSupabase(stripLocalPrefs(merged));
-      }
-      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-      return merged;
-    }
+  const raw = await AsyncStorage.getItem(STORAGE_KEY);
+  if (!raw) {
+    const initial = applyLocalPrefs(seedData(), prefs);
+    await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(initial));
+    await saveLocalPrefs(prefs);
+    return initial;
   }
+  const parsed = normalizeAppData(JSON.parse(raw) as AppData);
+  return applyLocalPrefs(parsed, prefs);
+}
+
+/** Sincroniza com Supabase em segundo plano; devolve dados actualizados ou null. */
+export async function syncAppDataFromSupabase(
+  current: AppData,
+): Promise<AppData | null> {
+  if (!isSupabaseConfigured()) return null;
+
+  const prefs = await loadLocalPrefs();
+  const remote = await loadSharedAppDataFromSupabase();
+  if (!remote) return null;
+
+  let merged = applyLocalPrefs(normalizeAppData(remote), {
+    ...prefs,
+    sessionPhone: current.sessionPhone ?? prefs.sessionPhone,
+    readAnnouncements: current.readAnnouncements,
+    readAnnouncementIds: current.readAnnouncementIds,
+  });
+
+  if (merged.announcements.length === 0) {
+    merged = normalizeAppData({ ...merged, announcements: defaultAnnouncements() });
+    await persistSharedAppDataToSupabase(stripLocalPrefs(merged));
+  }
+
+  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+  await saveLocalPrefs({
+    sessionPhone: merged.sessionPhone,
+    readAnnouncements: merged.readAnnouncements,
+  });
+  return merged;
+}
+
+export async function loadAppData(): Promise<AppData> {
+  const local = await loadAppDataLocal();
+  const remote = await syncAppDataFromSupabase(local);
+  if (remote) return remote;
 
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (!raw) {

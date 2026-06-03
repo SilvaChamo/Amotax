@@ -20,7 +20,7 @@ import {
   isAnnouncementUnread,
   sortAnnouncementsNewestFirst,
 } from "../../lib/notifications";
-import { SIDE_PADDING } from "../../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
 import { colors } from "../../theme/colors";
 import { RADIUS } from "../../theme/radius";
 import { fontFamily, text } from "../../theme/typography";
@@ -31,6 +31,7 @@ import type { AuthStackParamList } from "../../navigation/types";
 type Props = NativeStackScreenProps<AuthStackParamList, "Notifications">;
 
 export function NotificationsScreen({ navigation }: Props) {
+  const { sidePadding, isLandscape } = useResponsiveLayoutContextSafe();
   const { data, markAnnouncementRead } = useApp();
   const [selected, setSelected] = useState<Announcement | null>(null);
 
@@ -55,13 +56,20 @@ export function NotificationsScreen({ navigation }: Props) {
         onBack={() => navigation.goBack()}
         showLogout={false}
       />
-      <SafeAreaView style={styles.safe} edges={["left", "right", "bottom"]}>
+      <SafeAreaView
+        style={styles.safe}
+        edges={
+          isLandscape
+            ? ["top", "left", "right", "bottom"]
+            : ["left", "right", "bottom"]
+        }
+      >
         <ScrollView
           contentContainerStyle={styles.scroll}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.inner}>
-            <View style={styles.header}>
+            <View style={[styles.header, { paddingHorizontal: sidePadding }]}>
               <Text style={text.h2}>Notificações</Text>
               <Text style={styles.sub}>
                 {unreadCount > 0
@@ -71,7 +79,7 @@ export function NotificationsScreen({ navigation }: Props) {
             </View>
 
             {list.length === 0 && (
-              <View style={styles.cardPress}>
+              <View style={[styles.cardPress, { paddingHorizontal: sidePadding }]}>
                 <Card centered={false} style={styles.rowCard}>
                   <Text style={text.body}>Ainda não há notificações.</Text>
                 </Card>
@@ -89,7 +97,7 @@ export function NotificationsScreen({ navigation }: Props) {
               return (
                 <Pressable
                   key={a.id}
-                  style={styles.cardPress}
+                  style={[styles.cardPress, { paddingHorizontal: sidePadding }]}
                   onPress={() => openDetail(a)}
                 >
                   <Card
@@ -119,7 +127,10 @@ export function NotificationsScreen({ navigation }: Props) {
         animationType="fade"
         onRequestClose={closeDetail}
       >
-        <Pressable style={styles.modalOverlay} onPress={closeDetail}>
+        <Pressable
+          style={[styles.modalOverlay, { padding: sidePadding }]}
+          onPress={closeDetail}
+        >
           <Pressable style={styles.modalCard} onPress={(e) => e.stopPropagation()}>
             {selected ? (
               <>
@@ -158,12 +169,12 @@ const styles = StyleSheet.create({
   },
   inner: {
     width: "100%",
+    alignSelf: "stretch",
     paddingTop: 16,
     gap: 10,
   },
   header: {
     width: "100%",
-    paddingHorizontal: SIDE_PADDING,
     gap: 4,
     marginBottom: 4,
   },
@@ -174,7 +185,6 @@ const styles = StyleSheet.create({
   cardPress: {
     width: "100%",
     alignSelf: "stretch",
-    paddingHorizontal: SIDE_PADDING,
   },
   rowCard: {
     width: "100%",
@@ -233,7 +243,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.55)",
     justifyContent: "center",
-    padding: SIDE_PADDING,
   },
   modalCard: {
     backgroundColor: colors.white,

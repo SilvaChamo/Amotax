@@ -1,10 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { Text } from "react-native";
-import { AnnouncementsScreen } from "../screens/member/AnnouncementsScreen";
-import { HomeScreen } from "../screens/member/HomeScreen";
-import { MeetingsScreen } from "../screens/member/MeetingsScreen";
-import { ProfileScreen } from "../screens/member/ProfileScreen";
 import { colors } from "../theme/colors";
 import { fontFamily } from "../theme/typography";
 import type { MainTabParamList } from "./types";
@@ -64,11 +60,11 @@ export function MainTabs() {
           paddingTop: 6,
           height: 64,
         },
+        lazy: true,
       }}
     >
       <Tab.Screen
         name="Home"
-        component={HomeScreen}
         options={{
           title: "Início",
           headerShown: false,
@@ -82,10 +78,10 @@ export function MainTabs() {
           ),
           tabBarLabel: ({ focused }) => <TabLabel label="Início" focused={focused} />,
         }}
+        getComponent={() => require("../screens/member/HomeScreen").HomeScreen}
       />
       <Tab.Screen
         name="Announcements"
-        component={AnnouncementsScreen}
         options={{
           title: "Avisos",
           headerShown: false,
@@ -99,10 +95,12 @@ export function MainTabs() {
           ),
           tabBarLabel: ({ focused }) => <TabLabel label="Avisos" focused={focused} />,
         }}
+        getComponent={() =>
+          require("../screens/member/AnnouncementsScreen").AnnouncementsScreen
+        }
       />
       <Tab.Screen
         name="Meetings"
-        component={MeetingsScreen}
         options={{
           title: "Reuniões",
           headerShown: false,
@@ -116,10 +114,10 @@ export function MainTabs() {
           ),
           tabBarLabel: ({ focused }) => <TabLabel label="Reuniões" focused={focused} />,
         }}
+        getComponent={() => require("../screens/member/MeetingsScreen").MeetingsScreen}
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
         options={{
           title: "Perfil",
           headerShown: false,
@@ -133,6 +131,7 @@ export function MainTabs() {
           ),
           tabBarLabel: ({ focused }) => <TabLabel label="Perfil" focused={focused} />,
         }}
+        getComponent={() => require("../screens/member/ProfileScreen").ProfileScreen}
       />
     </Tab.Navigator>
   );

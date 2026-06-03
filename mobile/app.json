@@ -3,7 +3,7 @@
     "name": "AMOTAX",
     "slug": "amotax",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "splash": {
@@ -16,6 +16,7 @@
       "bundleIdentifier": "org.amotax.app"
     },
     "android": {
+      "softwareKeyboardLayoutMode": "resize",
       "adaptiveIcon": {
         "backgroundColor": "#0B2E4A",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -28,6 +29,11 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["expo-font", "expo-splash-screen", "expo-image-picker"]
+    "plugins": [
+      "expo-font",
+      "expo-splash-screen",
+      "expo-image-picker",
+      "expo-image"
+    ]
   }
 }

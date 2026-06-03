@@ -1,8 +1,4 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import { LoginScreen } from "../screens/auth/LoginScreen";
-import { NotificationsScreen } from "../screens/auth/NotificationsScreen";
-import { OtpScreen } from "../screens/auth/OtpScreen";
-import { RegisterScreen } from "../screens/auth/RegisterScreen";
 import { WelcomeScreen } from "../screens/auth/WelcomeScreen";
 import { colors } from "../theme/colors";
 import { authScreenOptions } from "./authScreenOptions";
@@ -19,14 +15,27 @@ export function AuthNavigator() {
       }}
     >
       <Stack.Screen name="Welcome" component={WelcomeScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+      <Stack.Screen
+        name="Login"
+        options={{ headerShown: false }}
+        getComponent={() => require("../screens/auth/LoginScreen").LoginScreen}
+      />
       <Stack.Screen
         name="Notifications"
-        component={NotificationsScreen}
         options={{ headerShown: false }}
+        getComponent={() =>
+          require("../screens/auth/NotificationsScreen").NotificationsScreen
+        }
       />
-      <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
-      <Stack.Screen name="Otp" component={OtpScreen} />
+      <Stack.Screen
+        name="Register"
+        options={{ headerShown: false }}
+        getComponent={() => require("../screens/auth/RegisterScreen").RegisterScreen}
+      />
+      <Stack.Screen
+        name="Otp"
+        getComponent={() => require("../screens/auth/OtpScreen").OtpScreen}
+      />
     </Stack.Navigator>
   );
 }

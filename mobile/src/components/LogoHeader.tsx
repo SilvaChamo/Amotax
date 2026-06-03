@@ -1,18 +1,18 @@
-import { Image, Platform, StyleSheet, Text, View } from "react-native";
+import { Image } from "expo-image";
+import { Platform, StyleSheet, Text, View } from "react-native";
 import { LOGO_BAR_HEIGHT, LOGO_BAR_WIDTH } from "../theme/layout";
 import { colors } from "../theme/colors";
 import { fontFamily } from "../theme/typography";
 
+/** PNG com fundo transparente — sem caixa branca no cabeçalho */
 const logoImage = require("../../assets/imagem/Logotipo.png");
 
-/** `bar` = cabeçalhos da app; `full` = ecrã inicial com legenda; `compact` = formulários */
 type Size = "full" | "bar" | "compact" | "welcome" | "login" | "internal";
 
 type Props = {
   size?: Size;
   onDark?: boolean;
   showTag?: boolean;
-  flat?: boolean;
 };
 
 function isBarSize(size: Size) {
@@ -23,7 +23,6 @@ export function LogoHeader({
   size = "full",
   onDark = false,
   showTag = true,
-  flat = false,
 }: Props) {
   const bar = isBarSize(size);
   const compact = size === "compact";
@@ -40,12 +39,14 @@ export function LogoHeader({
         source={logoImage}
         style={[
           styles.logo,
-          flat && styles.logoFlat,
+          styles.logoTransparent,
           size === "full" && styles.logoFull,
           bar && styles.logoBar,
           compact && styles.logoCompact,
         ]}
-        resizeMode="contain"
+        contentFit="contain"
+        cachePolicy="memory-disk"
+        transition={0}
         accessibilityLabel="AMOTAX"
       />
       {size === "full" && showTag && (
@@ -62,26 +63,31 @@ const styles = StyleSheet.create({
     alignItems: "center",
     marginBottom: 20,
     width: "100%",
+    backgroundColor: "transparent",
   },
   wrapBar: {
     marginBottom: 0,
     marginTop: 0,
+    backgroundColor: "transparent",
   },
   wrapCompact: {
     marginBottom: 8,
     marginTop: 0,
+    backgroundColor: "transparent",
   },
   logo: {
     width: "100%",
+    backgroundColor: "transparent",
   },
-  logoFlat: {
+  logoTransparent: {
     borderWidth: 0,
     ...(Platform.OS === "web"
       ? ({
           outlineStyle: "none",
           boxShadow: "none",
+          backgroundColor: "transparent",
         } as object)
-      : {}),
+      : { backgroundColor: "transparent" }),
   },
   logoFull: {
     maxWidth: 380,

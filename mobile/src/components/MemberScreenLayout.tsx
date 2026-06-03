@@ -24,7 +24,13 @@ export function MemberScreenLayout({
   return (
     <View style={styles.root}>
       <MemberTopBar showBack={showBack} onBack={onBack} />
-      <Screen title={title} subtitle={subtitle} footer={footer} omitTopSafeArea>
+      <Screen
+        title={title}
+        subtitle={subtitle}
+        footer={footer}
+        omitTopSafeArea
+        centered
+      >
         {children}
       </Screen>
     </View>

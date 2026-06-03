@@ -1,6 +1,15 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
 import { LocationSelector } from "../../components/LocationSelector";
 import { MemberTopBar } from "../../components/MemberTopBar";
 import { Button } from "../../components/ui/Button";
@@ -29,6 +38,8 @@ const REGISTRATION_TABS: { id: MemberRegistrationKind; label: string; plateLabel
   ];
 
 export function RegisterScreen({ navigation }: Props) {
+  const { isLandscape, isTablet } = useResponsiveLayoutContextSafe();
+  const wideForm = isLandscape || isTablet;
   const { register } = useApp();
   const [registrationKind, setRegistrationKind] =
     useState<MemberRegistrationKind>("mototaxi");
@@ -128,8 +139,15 @@ export function RegisterScreen({ navigation }: Props) {
   return (
     <View style={styles.page}>
       <MemberTopBar showBack onBack={() => navigation.goBack()} showLogout={false} />
-      <Screen footer={<Button title="Continuar" onPress={submit} loading={loading} />} omitTopSafeArea>
-        <View style={styles.form}>
+      <KeyboardAvoidingView
+        style={styles.keyboard}
+        behavior={Platform.OS === "ios" ? "padding" : undefined}
+      >
+        <Screen
+          footer={<Button title="Continuar" onPress={submit} loading={loading} />}
+          omitTopSafeArea
+        >
+          <View style={styles.form}>
           <View style={styles.tabs}>
             {REGISTRATION_TABS.map((tab) => {
               const active = registrationKind === tab.id;
@@ -160,8 +178,8 @@ export function RegisterScreen({ navigation }: Props) {
           align="left"
         />
 
-        <View style={styles.row}>
-          <View style={styles.half}>
+        <View style={[styles.row, wideForm && styles.rowWide]}>
+          <View style={[styles.half, wideForm && styles.halfWide]}>
             <Input
               label="Telemóvel"
               value={phone}
@@ -171,7 +189,7 @@ export function RegisterScreen({ navigation }: Props) {
               align="left"
             />
           </View>
-          <View style={styles.half}>
+          <View style={[styles.half, wideForm && styles.halfWide]}>
             <Input
               label={
                 REGISTRATION_TABS.find((t) => t.id === registrationKind)?.plateLabel ??
@@ -215,8 +233,9 @@ export function RegisterScreen({ navigation }: Props) {
         </Pressable>
 
         {error ? <Text style={styles.err}>{error}</Text> : null}
-        </View>
-      </Screen>
+          </View>
+        </Screen>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -226,10 +245,13 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.gray100,
   },
+  keyboard: {
+    flex: 1,
+    width: "100%",
+  },
   form: {
     width: "100%",
-    maxWidth: 440,
-    alignSelf: "center",
+    alignSelf: "stretch",
   },
   tabs: {
     flexDirection: "row",
@@ -269,14 +291,23 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   row: {
+    flexDirection: "column",
+    gap: 0,
+    width: "100%",
+    alignItems: "stretch",
+  },
+  rowWide: {
     flexDirection: "row",
     gap: 12,
-    width: "100%",
     alignItems: "flex-start",
   },
   half: {
-    flex: 1,
+    width: "100%",
     minWidth: 0,
+  },
+  halfWide: {
+    flex: 1,
+    width: undefined,
   },
   checkRow: {
     flexDirection: "row",

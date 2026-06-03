@@ -1,7 +1,7 @@
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useApp } from "../context/AppContext";
-import { CONTENT_MAX_WIDTH, SIDE_PADDING } from "../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../context/ResponsiveLayoutContext";
 import { colors } from "../theme/colors";
 import { LogoHeader } from "./LogoHeader";
 import { TopBarButton } from "./TopBarButton";
@@ -15,10 +15,14 @@ type Props = {
 
 export function MemberTopBar({ showBack, onBack, showLogout = true }: Props) {
   const { logout } = useApp();
+  const { sidePadding, isLandscape } = useResponsiveLayoutContextSafe();
 
   return (
-    <SafeAreaView edges={["top"]} style={styles.safe}>
-      <View style={styles.outer}>
+    <SafeAreaView
+      edges={isLandscape ? ["top", "left", "right"] : ["top"]}
+      style={styles.safe}
+    >
+      <View style={[styles.outer, { paddingHorizontal: sidePadding }]}>
         <View style={styles.bar}>
           <View style={styles.side}>
             {showBack && onBack ? (
@@ -28,7 +32,7 @@ export function MemberTopBar({ showBack, onBack, showLogout = true }: Props) {
             )}
           </View>
           <View style={styles.logoWrap}>
-            <LogoHeader size="bar" flat />
+            <LogoHeader size="bar" />
           </View>
           <View style={[styles.side, styles.sideRight]}>
             {showLogout ? (
@@ -54,7 +58,6 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   outer: {
-    paddingHorizontal: SIDE_PADDING,
     paddingBottom: 10,
     paddingTop: 8,
   },
@@ -62,8 +65,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    maxWidth: CONTENT_MAX_WIDTH,
-    alignSelf: "center",
+    alignSelf: "stretch",
     minHeight: 100,
   },
   side: {
@@ -80,5 +82,6 @@ const styles = StyleSheet.create({
   logoWrap: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "transparent",
   },
 });

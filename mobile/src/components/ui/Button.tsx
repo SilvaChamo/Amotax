@@ -98,8 +98,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     minHeight: 44,
     width: "100%",
-    maxWidth: 440,
-    alignSelf: "center",
+    alignSelf: "stretch",
   },
   hoverYellow: {
     backgroundColor: colors.yellow,

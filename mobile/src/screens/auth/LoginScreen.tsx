@@ -2,24 +2,23 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { AppBackground } from "../../components/AppBackground";
 import { PublicAppHeader } from "../../components/PublicAppHeader";
 import { TopBarButton } from "../../components/TopBarButton";
 import { Button } from "../../components/ui/Button";
 import { Input } from "../../components/ui/Input";
 import { DEMO_OTP } from "../../config/constants";
 import { useApp } from "../../context/AppContext";
-import { contentBlock } from "../../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
 import { colors } from "../../theme/colors";
 import { fontFamily } from "../../theme/typography";
 import { isValidMozPhone, normalizePhone } from "../../utils/phone";
 import type { AuthStackParamList } from "../../navigation/types";
 
-const loginBg = require("../../../assets/imagem/Bg2.jpeg");
-
 type Props = NativeStackScreenProps<AuthStackParamList, "Login">;
 
 export function LoginScreen({ navigation }: Props) {
+  const { contentBlockStyle, sidePadding, isLandscape } =
+    useResponsiveLayoutContextSafe();
   const { enterAsGuest } = useApp();
   const [phone, setPhone] = useState("");
   const [error, setError] = useState("");
@@ -44,8 +43,11 @@ export function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <AppBackground image={loginBg}>
-      <SafeAreaView style={styles.root} edges={["left", "right"]}>
+    <View style={styles.page}>
+      <SafeAreaView
+        style={styles.root}
+        edges={isLandscape ? ["top", "left", "right", "bottom"] : ["left", "right"]}
+      >
         <PublicAppHeader
           left={
             <TopBarButton label="Voltar" onPress={() => navigation.navigate("Welcome")} />
@@ -53,7 +55,7 @@ export function LoginScreen({ navigation }: Props) {
         />
 
         <View style={styles.center}>
-          <View style={contentBlock}>
+          <View style={contentBlockStyle}>
             <Text style={styles.phonePrompt}>Digite seu numero de telefone</Text>
             <Input
               placeholder="84 123 4567"
@@ -67,7 +69,7 @@ export function LoginScreen({ navigation }: Props) {
         </View>
 
         <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
-          <View style={[styles.footer, contentBlock]}>
+          <View style={[styles.footer, contentBlockStyle, { paddingHorizontal: sidePadding }]}>
             <Button title="Receber código" onPress={continueFlow} />
             <Button
               title="Ainda não tenho conta"
@@ -83,11 +85,15 @@ export function LoginScreen({ navigation }: Props) {
           </View>
         </SafeAreaView>
       </SafeAreaView>
-    </AppBackground>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  page: {
+    flex: 1,
+    backgroundColor: colors.gray100,
+  },
   root: { flex: 1 },
   center: {
     flex: 1,
@@ -98,23 +104,17 @@ const styles = StyleSheet.create({
   phonePrompt: {
     fontFamily: fontFamily.medium,
     fontSize: 16,
-    color: colors.white,
+    color: colors.navy,
     textAlign: "center",
     width: "100%",
     marginBottom: 10,
-    textShadowColor: "rgba(0,0,0,0.5)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
   },
   hint: {
     fontSize: 13,
-    color: colors.yellowLight,
+    color: colors.gray500,
     marginBottom: 8,
     textAlign: "center",
     width: "100%",
-    textShadowColor: "rgba(0,0,0,0.4)",
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
   },
   footerSafe: { width: "100%", alignItems: "center" },
   footer: {

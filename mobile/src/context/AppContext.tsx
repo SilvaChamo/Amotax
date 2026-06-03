@@ -14,6 +14,8 @@ import {
   findMemberByPhone,
   isAdminPhone,
   loadAppData,
+  loadAppDataLocal,
+  syncAppDataFromSupabase,
   markAnnouncementsReadByIds,
   registerMember,
   rejectMember,
@@ -76,8 +78,22 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    refresh().finally(() => setLoading(false));
-  }, [refresh]);
+    let cancelled = false;
+
+    (async () => {
+      const local = await loadAppDataLocal();
+      if (cancelled) return;
+      setData(local);
+      setLoading(false);
+
+      const remote = await syncAppDataFromSupabase(local);
+      if (!cancelled && remote) setData(remote);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const sessionMember = useMemo(() => {
     if (!data?.sessionPhone) return null;

@@ -7,13 +7,15 @@ import { NotificationBellButton } from "../../components/NotificationBellButton"
 import { PublicAppHeader } from "../../components/PublicAppHeader";
 import { Button } from "../../components/ui/Button";
 import { useApp } from "../../context/AppContext";
-import { CONTENT_MAX_WIDTH, contentBlock, SIDE_PADDING } from "../../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
 import type { AuthStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
 
 export function WelcomeScreen({ navigation }: Props) {
   const { enterAsGuest, unreadNotificationCount } = useApp();
+  const { contentBlockStyle, sidePadding, isLandscape } =
+    useResponsiveLayoutContextSafe();
   const [loading, setLoading] = useState(false);
 
   const explore = async () => {
@@ -27,11 +29,14 @@ export function WelcomeScreen({ navigation }: Props) {
 
   return (
     <AppBackground>
-      <SafeAreaView style={styles.root} edges={["left", "right"]}>
+      <SafeAreaView
+        style={styles.root}
+        edges={isLandscape ? ["top", "left", "right", "bottom"] : ["left", "right"]}
+      >
         <PublicAppHeader />
 
         <View style={styles.content}>
-          <View style={styles.contentInner}>
+          <View style={[styles.contentInner, { paddingHorizontal: sidePadding }]}>
             <NotificationBellButton
               unreadCount={unreadNotificationCount}
               onPress={() => navigation.navigate("Notifications")}
@@ -41,7 +46,13 @@ export function WelcomeScreen({ navigation }: Props) {
         </View>
 
         <SafeAreaView edges={["bottom"]} style={styles.footerSafe}>
-          <View style={[styles.footer, contentBlock]}>
+          <View
+            style={[
+              styles.footer,
+              contentBlockStyle,
+              { paddingHorizontal: sidePadding },
+            ]}
+          >
             <Button
               title="Explorar sem login"
               onPress={explore}
@@ -63,7 +74,7 @@ export function WelcomeScreen({ navigation }: Props) {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    alignItems: "center",
+    width: "100%",
   },
   content: {
     flex: 1,
@@ -71,9 +82,7 @@ const styles = StyleSheet.create({
   },
   contentInner: {
     width: "100%",
-    maxWidth: CONTENT_MAX_WIDTH,
-    alignSelf: "center",
-    paddingHorizontal: SIDE_PADDING,
+    alignSelf: "stretch",
     paddingTop: 12,
     flexDirection: "row",
     justifyContent: "flex-end",
@@ -83,12 +92,10 @@ const styles = StyleSheet.create({
   },
   footerSafe: {
     width: "100%",
-    alignItems: "center",
   },
   footer: {
     gap: 12,
     width: "100%",
-    paddingHorizontal: 24,
     paddingTop: 12,
     paddingBottom: 24,
     alignItems: "center",

@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LogoHeader } from "./LogoHeader";
-import { CONTENT_MAX_WIDTH, SIDE_PADDING } from "../theme/layout";
+import { useResponsiveLayoutContextSafe } from "../context/ResponsiveLayoutContext";
 
 type Props = {
   left?: ReactNode;
@@ -10,13 +10,18 @@ type Props = {
 };
 
 export function PublicAppHeader({ left, right }: Props) {
+  const { sidePadding, isLandscape } = useResponsiveLayoutContextSafe();
+
   return (
-    <SafeAreaView edges={["top"]} style={styles.header}>
-      <View style={styles.outer}>
+    <SafeAreaView
+      edges={isLandscape ? ["top", "left", "right"] : ["top"]}
+      style={styles.header}
+    >
+      <View style={[styles.outer, { paddingHorizontal: sidePadding }]}>
         <View style={styles.bar}>
           <View style={styles.side}>{left ?? <View style={styles.sideSpacer} />}</View>
           <View style={styles.logoWrap}>
-            <LogoHeader size="bar" onDark showTag={false} flat />
+            <LogoHeader size="bar" onDark showTag={false} />
           </View>
           <View style={[styles.side, styles.sideRight]}>
             {right ?? <View style={styles.sideSpacer} />}
@@ -34,7 +39,6 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.55)",
   },
   outer: {
-    paddingHorizontal: SIDE_PADDING,
     paddingTop: 6,
     paddingBottom: 4,
   },
@@ -42,8 +46,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    maxWidth: CONTENT_MAX_WIDTH,
-    alignSelf: "center",
+    alignSelf: "stretch",
     minHeight: 100,
   },
   side: {
@@ -60,6 +63,7 @@ const styles = StyleSheet.create({
   logoWrap: {
     flex: 1,
     alignItems: "center",
+    backgroundColor: "transparent",
   },
   headerLine: {
     height: 2,
