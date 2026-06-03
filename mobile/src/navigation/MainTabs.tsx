@@ -54,7 +54,7 @@ export function MainTabs() {
         tabBarActiveTintColor: colors.yellowDark,
         tabBarInactiveTintColor: colors.gray500,
         tabBarStyle: {
-          backgroundColor: colors.white,
+          backgroundColor: colors.footerSoft,
           borderTopColor: colors.gray200,
           paddingBottom: 6,
           paddingTop: 6,
