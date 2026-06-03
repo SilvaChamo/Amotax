@@ -19,11 +19,16 @@ Plataforma piloto (aplicativo móvel) para registo de mototaxistas, cotas mensai
 
 ## Executar o aplicativo
 
+Na pasta **Amotax** (raiz):
+
 ```bash
-cd mobile
-npm install
-npm start
+npm install --prefix mobile
+npm run dev
 ```
+
+Abre o piloto na web em **http://localhost:3005**.
+
+Alternativa (dentro de `mobile/`): `npm install` e `npm run dev`.
 
 - **Android:** `npm run android` ou Expo Go no telemóvel
 - **iOS:** `npm run ios` (macOS com Xcode)
@@ -49,11 +54,19 @@ npm start
 1. Entrar com telefone admin → OTP `123456`  
 2. **Painel de administração** → activar membros, aprovar cotas, publicar avisos, criar reuniões  
 
-## Próximas fases (fora deste piloto)
+## Vercel + Supabase (piloto online)
 
-- API Node + PostgreSQL em servidor  
+Guia completo: **[docs/DEPLOY.md](docs/DEPLOY.md)**
+
+- **Dev:** `npm run dev` → http://localhost:3005  
+- **Produção:** Vercel + variáveis `EXPO_PUBLIC_SUPABASE_*`  
+- **Dados partilhados:** Supabase (membros, cotas, avisos); sessão e lidas ficam no dispositivo  
+
+## Próximas fases
+
 - SMS real (provedor MZ) e M-Pesa / e-Mola  
 - Site institucional AMOTAX  
+- RLS/autenticação Supabase para produção  
 
 ## Regenerar documento Word
 

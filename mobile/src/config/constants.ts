@@ -2,6 +2,8 @@ export const DEMO_OTP = "123456";
 /** Membro de demonstração para explorar o app sem login */
 export const DEMO_GUEST_PHONE = "258841111111";
 export const STORAGE_KEY = "@amotax/v1";
+/** Sessão e notificações lidas (por dispositivo) */
+export const LOCAL_PREFS_KEY = "@amotax/local/v1";
 export const DEFAULT_DUE_AMOUNT = 100;
 
 /** Telefones de administrador no piloto (apenas dígitos, sem +) */

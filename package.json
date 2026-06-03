@@ -5,6 +5,10 @@
   "main": "index.js",
   "scripts": {
     "doc": "node scripts/generate-project-doc.mjs",
+    "dev": "npm run dev --prefix mobile",
+    "web": "npm run web --prefix mobile",
+    "build:web": "npm run build:web --prefix mobile",
+    "start": "npm run start --prefix mobile",
     "mobile": "cd mobile && npm start",
     "mobile:android": "cd mobile && npm run android"
   },

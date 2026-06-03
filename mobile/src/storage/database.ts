@@ -2,9 +2,15 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   ADMIN_PHONES,
   DEFAULT_DUE_AMOUNT,
+  LOCAL_PREFS_KEY,
   STORAGE_KEY,
   ZONES_SEED,
 } from "../config/constants";
+import { isSupabaseConfigured } from "../lib/supabase";
+import {
+  loadSharedAppDataFromSupabase,
+  persistSharedAppDataToSupabase,
+} from "./supabase-sync";
 import type {
   Announcement,
   AppData,
@@ -74,7 +80,54 @@ function normalizeAppData(data: AppData): AppData {
   };
 }
 
+type LocalPrefs = {
+  sessionPhone?: string;
+  readAnnouncementIds?: string[];
+};
+
+async function loadLocalPrefs(): Promise<LocalPrefs> {
+  const raw = await AsyncStorage.getItem(LOCAL_PREFS_KEY);
+  if (!raw) return {};
+  try {
+    return JSON.parse(raw) as LocalPrefs;
+  } catch {
+    return {};
+  }
+}
+
+async function saveLocalPrefs(prefs: LocalPrefs): Promise<void> {
+  await AsyncStorage.setItem(LOCAL_PREFS_KEY, JSON.stringify(prefs));
+}
+
+function applyLocalPrefs(data: AppData, prefs: LocalPrefs): AppData {
+  return {
+    ...data,
+    sessionPhone: prefs.sessionPhone,
+    readAnnouncementIds: prefs.readAnnouncementIds ?? [],
+  };
+}
+
+function stripLocalPrefs(data: AppData): AppData {
+  const { sessionPhone: _s, readAnnouncementIds: _r, ...shared } = data;
+  return { ...shared, readAnnouncementIds: [] };
+}
+
 export async function loadAppData(): Promise<AppData> {
+  const prefs = await loadLocalPrefs();
+
+  if (isSupabaseConfigured()) {
+    const remote = await loadSharedAppDataFromSupabase();
+    if (remote) {
+      let merged = applyLocalPrefs(normalizeAppData(remote), prefs);
+      if (merged.announcements.length === 0) {
+        merged = normalizeAppData({ ...merged, announcements: defaultAnnouncements() });
+        await persistSharedAppDataToSupabase(stripLocalPrefs(merged));
+      }
+      await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+      return merged;
+    }
+  }
+
   const raw = await AsyncStorage.getItem(STORAGE_KEY);
   if (!raw) {
     const initial = seedData();
@@ -90,7 +143,16 @@ export async function loadAppData(): Promise<AppData> {
 }
 
 export async function saveAppData(data: AppData): Promise<void> {
+  const prefs: LocalPrefs = {
+    sessionPhone: data.sessionPhone,
+    readAnnouncementIds: data.readAnnouncementIds ?? [],
+  };
+  await saveLocalPrefs(prefs);
   await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+
+  if (isSupabaseConfigured()) {
+    await persistSharedAppDataToSupabase(stripLocalPrefs(data));
+  }
 }
 
 export function nextMemberNumber(members: Member[]): string {
