@@ -9,7 +9,6 @@ import { DEMO_OTP } from "../../config/constants";
 import { useApp } from "../../context/AppContext";
 import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
 import { colors } from "../../theme/colors";
-import { footerSurface } from "../../theme/layout";
 import { fontFamily } from "../../theme/typography";
 import { isValidMozPhone, normalizePhone } from "../../utils/phone";
 import type { AuthStackParamList } from "../../navigation/types";
@@ -121,7 +120,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     width: "100%",
   },
-  footerSafe: { ...footerSurface, alignItems: "center" },
+  footerSafe: { width: "100%", alignItems: "center" },
   footer: {
     gap: 12,
     width: "100%",

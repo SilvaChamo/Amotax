@@ -1,5 +1,4 @@
 import { ViewStyle } from "react-native";
-import { colors } from "./colors";
 
 /** Largura máxima única do conteúdo (mobile e tablet) */
 export const APP_CONTENT_MAX_WIDTH = 480;
@@ -44,12 +43,4 @@ export const pageColumn: ViewStyle = {
 export const pagePadded: ViewStyle = {
   width: "100%",
   paddingHorizontal: SIDE_PADDING,
-};
-
-/** Zona de rodapé com fundo suave */
-export const footerSurface: ViewStyle = {
-  width: "100%",
-  backgroundColor: colors.footerSoft,
-  borderTopWidth: 1,
-  borderTopColor: colors.gray200,
 };

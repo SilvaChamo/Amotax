@@ -7,8 +7,6 @@ export const colors = {
   navyMid: "#1B4D73",
   navyLight: "#2A6A9B",
   sky: "#E8F0F8",
-  /** Fundo suave do rodapé (botões e tab bar) */
-  footerSoft: "#EBF1F8",
   white: "#FFFFFF",
   gray100: "#F5F7FA",
   gray200: "#E2E8F0",

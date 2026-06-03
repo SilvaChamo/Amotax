@@ -8,7 +8,6 @@ import { PublicAppHeader } from "../../components/PublicAppHeader";
 import { Button } from "../../components/ui/Button";
 import { useApp } from "../../context/AppContext";
 import { useResponsiveLayoutContextSafe } from "../../context/ResponsiveLayoutContext";
-import { footerSurface } from "../../theme/layout";
 import type { AuthStackParamList } from "../../navigation/types";
 
 type Props = NativeStackScreenProps<AuthStackParamList, "Welcome">;
@@ -91,7 +90,9 @@ const styles = StyleSheet.create({
   spacer: {
     flex: 1,
   },
-  footerSafe: footerSurface,
+  footerSafe: {
+    width: "100%",
+  },
   footer: {
     gap: 12,
     width: "100%",

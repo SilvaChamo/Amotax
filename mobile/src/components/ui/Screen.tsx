@@ -3,7 +3,6 @@ import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useResponsiveLayoutContext } from "../../context/ResponsiveLayoutContext";
 import { colors } from "../../theme/colors";
-import { footerSurface } from "../../theme/layout";
 import { text } from "../../theme/typography";
 
 type Props = {
@@ -145,7 +144,12 @@ const styles = StyleSheet.create({
   },
   scrollWithFooter: { paddingBottom: 12 },
   scrollCentered: { alignItems: "stretch" },
-  footerSafe: footerSurface,
+  footerSafe: {
+    backgroundColor: colors.gray100,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray200,
+    width: "100%",
+  },
   footer: {
     paddingTop: 12,
     paddingBottom: 16,
